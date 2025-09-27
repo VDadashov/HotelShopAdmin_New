@@ -20,7 +20,7 @@ export default function Dashboard() {
   const statCards = [
     { title: t('common.products'), count: products.data?.length, icon: <Layers className="w-8 h-8 text-pink-500 mb-2" />, path: "/products" },
     { title: t('common.categories'), count: categories?.data?.length, icon: <Tag className="w-8 h-8 text-yellow-500 mb-2" />, path: "/category" },
-    { title: t('common.contacts'), count: contacts.length, icon: <Users className="w-8 h-8 text-gray-500 mb-2" />, path: "/contact" },
+    // { title: t('common.contacts'), count: contacts.length, icon: <Users className="w-8 h-8 text-gray-500 mb-2" />, path: "/contact" },
   ];
 
   // Read/Unread breakdown
@@ -72,10 +72,10 @@ export default function Dashboard() {
         <div>
           <h2 className="text-lg font-semibold mb-3">{t('dashboard.latestProducts')}</h2>
           <ul className="divide-y divide-border bg-card dark:bg-[#232323] rounded-lg shadow">
-            {products.data.length === 0 ? (
+            {products?.data?.length === 0 ? (
               <li className="px-4 py-3 text-sm text-gray-400 italic">{t('products.noProducts')}</li>
             ) : (
-              latest(products.data).map(p => (
+              latest(products?.data).map(p => (
                 <li key={p.id} className="px-4 py-3 text-sm flex flex-col">
                   <span className="font-medium">{typeof p.title === 'object' ? p.title[lang] : p.title}</span>
                   <span className="text-xs text-gray-500">{p.createdAt ? new Date(p.createdAt).toLocaleString() : ""}</span>
@@ -84,7 +84,7 @@ export default function Dashboard() {
             )}
           </ul>
         </div>
-        <div>
+        {/* <div>
           <h2 className="text-lg font-semibold mb-3">{t('dashboard.latestGalleryItems')}</h2>
           <ul className="divide-y divide-border bg-card dark:bg-[#232323] rounded-lg shadow">
             {galleryItems.length === 0 ? (
@@ -98,7 +98,7 @@ export default function Dashboard() {
               ))
             )}
           </ul>
-        </div>
+        </div> */}
         <div>
           <h2 className="text-lg font-semibold mb-3">{t('dashboard.latestContacts')}</h2>
           <ul className="divide-y divide-border bg-card dark:bg-[#232323] rounded-lg shadow">

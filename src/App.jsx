@@ -7,7 +7,7 @@ import './i18n'; // Import i18n configuration
 const queryClient = new QueryClient();
 
 export default function App() {
-  document.title = "G-Stone Admin";
+  document.title = "HotelShop Admin";
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={routes}></RouterProvider>
