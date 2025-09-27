@@ -1,0 +1,6 @@
+/* G-Stone əsas rəngləri */
+:root {
+  --primary: rgb(16, 185, 129);
+  --primary-hover: rgb(13, 148, 104);
+  --primary-light: rgba(16, 185, 129, 0.1);
+}
