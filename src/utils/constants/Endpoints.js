@@ -1,6 +1,6 @@
 
 
-export const MAIN_URL = "http://localhost:3000/api";
+export const MAIN_URL = "https://api.hotelshop.az/api";
 
 export const ENDPOINTS = {
   company: `${MAIN_URL}/company`,
