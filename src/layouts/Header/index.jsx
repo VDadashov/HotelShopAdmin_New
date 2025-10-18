@@ -1,7 +1,6 @@
 import React from 'react'
 import { SidebarTrigger } from '../../components/ui/sidebar'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '../../components/ui/dropdown-menu'
-import { Separator } from '../../components/ui/separator'
 import { User, Sun, Moon, LogOut } from 'lucide-react'
 import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'

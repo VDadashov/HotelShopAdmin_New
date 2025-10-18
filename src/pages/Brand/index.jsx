@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useMemo } from "react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -9,47 +9,60 @@ import { usePost, useUpdate, useDelete } from "@/utils/hooks/useCustomMutation";
 import { ENDPOINTS } from "@/utils/constants/Endpoints";
 
 // Import components from new location
-import CompanyForm from "@/components/Company/CompanyForm";
-import CompanyViewModal from "@/components/Company/CompanyViewModal";
-import CompanyDeleteModal from "@/components/Company/CompanyDeleteModal";
-import CompanyTable from "@/components/Company/CompanyTable";
+import BrandForm from "@/components/Brands/BrandForm";
+import BrandViewModal from "@/components/Brands/BrandViewModal";
+import BrandDeleteModal from "@/components/Brands/BrandDeleteModal";
+import BrandTable from "@/components/Brands/BrandTable";
 
-export default function Company() {
+export default function Brand() {
   const { t } = useTranslation();
-  
+
   // State management
   const [showCreate, setShowCreate] = useState(false);
-  const [editCompany, setEditCompany] = useState(null);
-  const [viewCompany, setViewCompany] = useState(null);
-  const [deleteCompany, setDeleteCompany] = useState(null);
+  const [editbrand, setEditbrand] = useState(null);
+  const [viewbrand, setViewbrand] = useState(null);
+  const [deletebrand, setDeletebrand] = useState(null);
 
   // API hooks
-  const {
-    data: companyList = [],
-    isLoading,
-    refetch,
-  } = useGet("company", `${ENDPOINTS.company}?allLanguages=true`);
-  
-  const createCompany = usePost("company", ENDPOINTS.company);
-  const updateCompany = useUpdate("company", ENDPOINTS.company, editCompany?.id);
-  const deleteCompanyMutation = useDelete("company", ENDPOINTS.company, deleteCompany?.id);
-  
-  const { data: categoryList = [] } = useGet("categories", ENDPOINTS.categories);
+  const { data: brandList = [], refetch } = useGet(
+    "brand",
+    `${ENDPOINTS.brand}?allLanguages=true`
+  );
+
+  const createbrand = usePost("brand", ENDPOINTS.brand);
+  const updatebrand = useUpdate("brand", ENDPOINTS.brand, editbrand?.id);
+  const deletebrandMutation = useDelete(
+    "brand",
+    ENDPOINTS.brand,
+    deletebrand?.id
+  );
+
+  const { data: categoryList = [] } = useGet(
+    "categories",
+    ENDPOINTS.categories
+  );
 
   // Process table data
   const tableData = useMemo(() => {
     let rawData = [];
 
-    if (Array.isArray(companyList)) {
-      rawData = companyList;
-    } else if (companyList && typeof companyList === "object" && Array.isArray(companyList.data)) {
-      rawData = companyList.data;
-    } else if (companyList && typeof companyList === "object" && Array.isArray(companyList.items)) {
-      rawData = companyList.items;
+    if (Array.isArray(brandList)) {
+      rawData = brandList;
+    } else if (
+      brandList &&
+      typeof brandList === "object" &&
+      Array.isArray(brandList.data)
+    ) {
+      rawData = brandList.data;
+    } else if (
+      brandList &&
+      typeof brandList === "object" &&
+      Array.isArray(brandList.items)
+    ) {
+      rawData = brandList.items;
     }
 
     return rawData.map((item) => {
-      // Extract title text for search
       let titleText = "";
       if (typeof item.title === "object" && item.title !== null) {
         titleText = Object.values(item.title).filter(Boolean).join(" ");
@@ -60,7 +73,9 @@ export default function Company() {
       // Extract description text for search
       let descriptionText = "";
       if (typeof item.description === "object" && item.description !== null) {
-        descriptionText = Object.values(item.description).filter(Boolean).join(" ");
+        descriptionText = Object.values(item.description)
+          .filter(Boolean)
+          .join(" ");
       } else if (typeof item.description === "string") {
         descriptionText = item.description;
       }
@@ -89,39 +104,39 @@ export default function Company() {
           .toLowerCase(),
       };
     });
-  }, [companyList]);
+  }, [brandList]);
 
   // Event handlers
-  const handleEdit = (company) => {
-    setEditCompany(company);
+  const handleEdit = (brand) => {
+    setEditbrand(brand);
     setShowCreate(true);
   };
 
   const handleFormSubmit = (formData, { setSubmitting, resetForm }) => {
-    if (editCompany) {
-      updateCompany.mutate(formData, {
+    if (editbrand) {
+      updatebrand.mutate(formData, {
         onSuccess: () => {
-          toast.success(t('companies.companyUpdated'));
+          toast.success(t("brands.brandUpdated"));
           setShowCreate(false);
-          setEditCompany(null);
+          setEditbrand(null);
           resetForm();
           refetch();
         },
         onError: (error) => {
-          toast.error(error?.message || t('errors.generalError'));
+          toast.error(error?.message || t("errors.generalError"));
         },
         onSettled: () => setSubmitting(false),
       });
     } else {
-      createCompany.mutate(formData, {
+      createbrand.mutate(formData, {
         onSuccess: () => {
-          toast.success(t('companies.companyAdded'));
+          toast.success(t("brands.brandAdded"));
           setShowCreate(false);
           resetForm();
           refetch();
         },
         onError: (error) => {
-          toast.error(error?.message || t('errors.generalError'));
+          toast.error(error?.message || t("errors.generalError"));
         },
         onSettled: () => setSubmitting(false),
       });
@@ -129,75 +144,75 @@ export default function Company() {
   };
 
   const handleDeleteConfirm = () => {
-    if (!deleteCompany || !deleteCompany.id) return;
-    
-    deleteCompanyMutation.mutate(undefined, {
+    if (!deletebrand || !deletebrand.id) return;
+
+    deletebrandMutation.mutate(undefined, {
       onSuccess: () => {
-        toast.success(t('companies.companyDeleted'));
-        setDeleteCompany(null);
+        toast.success(t("brands.brandDeleted"));
+        setDeletebrand(null);
         refetch();
       },
       onError: (error) => {
-        toast.error(error?.message || t('errors.generalError'));
+        toast.error(error?.message || t("errors.generalError"));
       },
     });
   };
 
   const handleFormClose = () => {
     setShowCreate(false);
-    setEditCompany(null);
+    setEditbrand(null);
   };
 
   return (
     <div className="w-full mx-auto py-10 px-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold">{t('companies.title')}</h1>
+        <h1 className="text-2xl font-bold">{t("brands.title")}</h1>
         <div className="flex items-center gap-2">
           <Button
             onClick={() => {
               setShowCreate(true);
-              setEditCompany(null);
+              setEditbrand(null);
             }}
             className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))]"
           >
-            {t('companies.addCompany')}
+            {t("brands.addBrand")}
           </Button>
         </div>
       </div>
 
-      {/* Company Form Modal */}
-      <CompanyForm
+      {/* brand Form Modal */}
+      <BrandForm
         isOpen={showCreate}
         onClose={handleFormClose}
-        editCompany={editCompany}
+        editbrand={editbrand}
         onSubmit={handleFormSubmit}
-        isSubmitting={createCompany.isPending || updateCompany.isPending}
+        isSubmitting={createbrand.isPending || updatebrand.isPending}
         categoryList={categoryList}
       />
 
       {/* Delete Confirmation Modal */}
-      <CompanyDeleteModal
-        company={deleteCompany}
-        isOpen={!!deleteCompany}
-        onClose={() => setDeleteCompany(null)}
+      <BrandDeleteModal
+        brand={deletebrand}
+        isOpen={!!deletebrand}
+        onClose={() => setDeletebrand(null)}
         onConfirm={handleDeleteConfirm}
-        isDeleting={deleteCompanyMutation.isPending}
+        isDeleting={deletebrandMutation.isPending}
       />
 
-      {/* View Company Modal */}
-      <CompanyViewModal
-        company={viewCompany}
-        isOpen={!!viewCompany}
-        onClose={() => setViewCompany(null)}
+      {/* View brand Modal */}
+      <BrandViewModal
+        brand={viewbrand}
+        isOpen={!!viewbrand}
+        onClose={() => setViewbrand(null)}
       />
 
-      {/* Company Table */}
-      <CompanyTable
+      {/* brand Table */}
+      <BrandTable
         data={tableData}
-        onView={setViewCompany}
+        onView={setViewbrand}
         onEdit={handleEdit}
-        onDelete={setDeleteCompany}
+        onDelete={setDeletebrand}
       />
 
       {/* Toast notifications */}

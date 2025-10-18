@@ -37,8 +37,8 @@ export function SiderBar({ ...props }) {
             icon: <Home className="size-4" />,
           },
           // {
-          //   title: t("common.companies"),
-          //   url: "/company",
+          //   title: t("common.brands"),
+          //   url: "/brand",
           //   icon: <Briefcase className="size-4" />,
           // },
           {

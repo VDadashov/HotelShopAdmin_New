@@ -1,20 +1,16 @@
 import { createBrowserRouter } from "react-router-dom"
 import AdminRoot from "@/pages/AdminRoot"
-// import Dashboard from "../pages/Dashboard"
-import { Settings } from "../pages/Settings"
 import { Login } from "../pages/Login"
 import PrivateRoute from "@/components/PrivateRoute"
 import Profile from "../pages/Profile"
 import ProfileSettings from "../pages/Settings/Profile"
-import Company from "../pages/Company";
 import Category from "@/pages/Category"
-import GalleryCategory from "@/pages/GalleryCategory"
 import Product from "@/pages/Product"
-import GalleryItem from "@/pages/GalleryItem"
 import Contact from "@/pages/Contact"
 import Dashboard from "@/pages/Dashboard"
 import Page from "@/pages/Pages"
 import Section from "@/pages/Section"
+import Brand from "@/pages/Brand"
 
 // import Contact from "../pages/Contact";
 
@@ -36,8 +32,8 @@ const routes = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "/company",
-        element: <Company />,
+        path: "/brand",
+        element:  <Brand />,
       },
       {
         path: "/category",
@@ -46,14 +42,6 @@ const routes = createBrowserRouter([
       {
         path: "/product",
         element: <Product />,
-      },
-      {
-        path: "/gallery-category",
-        element: <GalleryCategory />,
-      },
-      {
-        path: "/gallery-item",
-        element: <GalleryItem />,
       },
       {
         path: "/profile",
