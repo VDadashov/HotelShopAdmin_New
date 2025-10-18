@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
@@ -19,7 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
 
 const CategoryForm = ({
   isOpen,
@@ -30,22 +29,18 @@ const CategoryForm = ({
   categories = [], // For parent category selection
 }) => {
   const { t } = useTranslation();
-  const [imageUploading, setImageUploading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(
-    editCategory?.imageUrl || ""
-  );
 
   const initialValues = editCategory
     ? {
         name: editCategory.name || { az: "", en: "", ru: "" },
-        imageUrl: editCategory.imageUrl || "",
+        index: editCategory.index || 0,
         isActive: editCategory.isActive ?? true,
         isProductHolder: editCategory.isProductHolder ?? false,
         parentId: editCategory.parentId || null,
       }
     : {
         name: { az: "", en: "", ru: "" },
-        imageUrl: "",
+        index: 0,
         isActive: true,
         isProductHolder: false,
         parentId: null,
@@ -57,86 +52,16 @@ const CategoryForm = ({
       en: Yup.string().required(t("categories.validation.nameEnRequired")),
       ru: Yup.string().required(t("categories.validation.nameRuRequired")),
     }),
-    imageUrl: Yup.string().url(t("categories.validation.imageUrlInvalid")),
+    index: Yup.number().min(0, t("categories.validation.indexInvalid")),
     isActive: Yup.boolean(),
     isProductHolder: Yup.boolean(),
     parentId: Yup.number().nullable(),
   });
 
-  // Image upload function
-  const handleImageUpload = async (file, setFieldValue) => {
-    if (!file) return;
-
-    console.log("Uploading file:", file.name, file.type, file.size);
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      alert(t("categories.validation.invalidFileType"));
-      return;
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      alert(t("categories.validation.fileTooLarge"));
-      return;
-    }
-
-    setImageUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      console.log("Sending request to API...");
-
-      const response = await fetch(
-        "https://api.hotelshop.az/api/upload/image",
-        {
-          method: "POST",
-          body: formData,
-          // Headers avtomatik təyin olunacaq FormData üçün
-        }
-      );
-
-
-      // Response text-ini oxu (JSON olmaya bilər)
-      const responseText = await response.text();
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${responseText}`);
-      }
-
-      // JSON parse etməyə çalış
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        throw new Error(`Invalid JSON response: ${responseText}`);
-      }
-
-
-      // Extract URL from response: data.media.url
-      const imageUrl = data.media?.url;
-
-      if (imageUrl) {
-        setFieldValue("imageUrl", imageUrl);
-        setImagePreview(imageUrl);
-        console.log("Image uploaded successfully:", imageUrl);
-      } else {
-        throw new Error("No URL in response: " + JSON.stringify(data));
-      }
-    } catch (error) {
-      console.error("Image upload error:", error);
-      alert(`Upload failed: ${error.message}`);
-    } finally {
-      setImageUploading(false);
-    }
-  };
-
   const handleSubmit = (values, { setSubmitting, resetForm }) => {
     const cleanValues = {
       name: values.name,
-      imageUrl: values.imageUrl,
+      index: values.index,
       isActive: values.isActive,
       isProductHolder: values.isProductHolder,
       parentId: values.parentId,
@@ -148,12 +73,6 @@ const CategoryForm = ({
   const availableParentCategories = categories.filter(
     (cat) => !editCategory || cat.id !== editCategory.id
   );
-
-  // Remove image
-  const handleRemoveImage = (setFieldValue) => {
-    setFieldValue("imageUrl", "");
-    setImagePreview("");
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -237,78 +156,25 @@ const CategoryForm = ({
                 </div>
               </div>
 
-              {/* Image Upload Section */}
+              {/* Index Field */}
               <div>
-                <Label className="mb-2 block">
-                  {t("categories.categoryImage")}
+                <Label htmlFor="index" className="mb-2 block">
+                  {t("categories.index")}
                 </Label>
-
-                {/* Image Preview */}
-                {imagePreview && (
-                  <div className="mb-4 relative inline-block">
-                    <img
-                      src={imagePreview}
-                      alt="Category preview"
-                      className="w-32 h-32 object-cover rounded-lg border"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(setFieldValue)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      disabled={imageUploading}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                )}
-
-                {/* Upload Input */}
-                <div className="space-y-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        handleImageUpload(file, setFieldValue);
-                      }
-                    }}
-                    className="hidden"
-                    id="imageUpload"
-                    disabled={imageUploading}
-                  />
-
-                  <label
-                    htmlFor="imageUpload"
-                    className={`inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                      imageUploading
-                        ? "opacity-50 cursor-not-allowed"
-                        : "border-gray-300 dark:border-gray-600"
-                    }`}
-                  >
-                    {imageUploading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 dark:border-gray-100"></div>
-                        {t("categories.uploading")}
-                      </>
-                    ) : (
-                      <>
-                        {imagePreview ? (
-                          <ImageIcon size={16} />
-                        ) : (
-                          <Upload size={16} />
-                        )}
-                        {imagePreview
-                          ? t("categories.changeImage")
-                          : t("categories.uploadImage")}
-                      </>
-                    )}
-                  </label>
-
-                  <p className="text-xs text-gray-500">
-                    {t("categories.imageUploadHint")}
-                  </p>
-                </div>
+                <Field
+                  as={Input}
+                  type="number"
+                  name="index"
+                  id="index"
+                  min="0"
+                  placeholder={t("categories.indexPlaceholder")}
+                  className="mb-2"
+                />
+                <ErrorMessage
+                  name="index"
+                  component="div"
+                  className="text-red-500 text-xs mt-1"
+                />
               </div>
 
               {/* Parent Category */}
@@ -385,14 +251,14 @@ const CategoryForm = ({
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  disabled={isSubmitting || imageUploading}
+                  disabled={isSubmitting}
                 >
                   {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
                   className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))]"
-                  disabled={isSubmitting || imageUploading}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting
                     ? editCategory

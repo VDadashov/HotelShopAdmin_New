@@ -149,12 +149,13 @@
     "removePdf": "PDF-i Sil"
   },
   "categories": {
+    "index": "İndeks",
     "title": "Kateqoriyalar",
     "productHolder": "Məhsul əlavə etmək",
     "subcategories": "Alt kateqoriyalar",
     "addCategory": "Kateqoriya Əlavə Et",
     "editCategory": "Kateqoriyanı Redaktə Et",
-    "categoryNames": "Kateqoriya adları",
+    "categoryName": "Kateqoriya adları",
     "categoryDescription": "Kateqoriya Təsviri",
     "noCategories": "Kateqoriya tapılmadı",
     "categoryAdded": "Kateqoriya uğurla əlavə edildi",
@@ -182,16 +183,17 @@
     "uploading": "Yüklənir...",
     "orImageUrl": "Və ya şəkil linki",
     "imageUploadHint": "JPG, PNG, GIF (maks 5MB)",
-    
+    "features": "Xüsusiyyətlər",
+    "rootCategory": "Root Kateqoriya",
     "validation": {
-      "nameAzRequired": "Azerbaycan dilinde ad tələb olunur",
-      "nameEnRequired": "İngilis dilinde ad tələb olunur",
-      "nameRuRequired": "Rus dilinde ad tələb olunur",
+      "nameAzRequired": "Azərbaycanca ad tələb olunur",
+      "nameEnRequired": "İngilis dilində ad tələb olunur",
+      "nameRuRequired": "Rus dilində ad tələb olunur",
       "imageUrlInvalid": "Yanlış URL format",
-      
       "invalidFileType": "Yalnız şəkil faylları qəbul edilir",
       "fileTooLarge": "Fayl həcmi çox böyükdür (maks 5MB)",
-      "uploadFailed": "Şəkil yüklənmədi, yenidən cəhd edin"
+      "uploadFailed": "Şəkil yüklənmədi, yenidən cəhd edin",
+      "indexInvalid": "İndeks 0 və ya daha böyük olmalıdır"
     }
   },
   "brands": {

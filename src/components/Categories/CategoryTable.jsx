@@ -11,7 +11,6 @@ import {
   Tag,
   CheckCircle,
   XCircle,
-  Image,
   FolderTree,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -35,7 +34,6 @@ const CategoryTable = ({ data, onView, onEdit, onDelete }) => {
         header: t("common.name"),
         cell: ({ row }) => {
           const name = row.original.name;
-          const imageUrl = row.original.imageUrl;
 
           let displayName = "";
           if (typeof name === "object" && name !== null) {
@@ -46,36 +44,33 @@ const CategoryTable = ({ data, onView, onEdit, onDelete }) => {
           }
 
           return (
-            <div className="flex items-center space-x-3">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={displayName}
-                  className="h-8 w-8 rounded-md object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "flex";
-                  }}
-                />
-              ) : null}
-              <Image
-                className="h-8 w-8 text-gray-400 bg-gray-100 p-1 rounded-md"
-                style={{ display: imageUrl ? "none" : "flex" }}
-              />
-              <div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">
-                  {displayName}
-                </div>
-                {row.original.parent && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    Parent:{" "}
-                    {typeof row.original.parent.name === "object"
-                      ? row.original.parent.name[i18n.language] ||
-                        row.original.parent.name.en
-                      : row.original.parent.name}
-                  </div>
-                )}
+            <div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">
+                {displayName}
               </div>
+              {row.original.parent && (
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Parent:{" "}
+                  {typeof row.original.parent.name === "object"
+                    ? row.original.parent.name[i18n.language] ||
+                      row.original.parent.name.en
+                    : row.original.parent.name}
+                </div>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "index",
+        header: t("categories.index"),
+        cell: ({ row }) => {
+          const index = row.original.index ?? 0;
+          return (
+            <div className="flex items-center">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                {index}
+              </span>
             </div>
           );
         },

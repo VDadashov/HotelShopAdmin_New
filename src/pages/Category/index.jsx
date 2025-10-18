@@ -22,7 +22,6 @@ export default function Category() {
   const [deleteCategory, setDeleteCategory] = useState(null);
   const [viewCategory, setViewCategory] = useState(null);
 
-  // API hooks
   const { data: categoryList = [], isLoading, refetch } = useGet("categories", `${ENDPOINTS.getCategories}?allLanguages=true`);
   const createCategory = usePost("categories", ENDPOINTS.categories);
   const updateCategory = useUpdate("categories", ENDPOINTS.categories, editCategory?.id);
@@ -31,7 +30,6 @@ export default function Category() {
   console.log(categoryList);
   
 
-  // Table üçün data-nı dilə uyğun string-lərlə hazırlayıram
   const tableData = useMemo(() => {
     let rawData = Array.isArray(categoryList) ? categoryList : Array.isArray(categoryList?.data) ? categoryList.data : [];
     
@@ -42,13 +40,11 @@ export default function Category() {
     }));
   }, [categoryList]);
 
-  // Edit üçün açılan modalı idarə et
   const handleEdit = (category) => {
     setEditCategory(category);
     setShowCreate(true);
   };
 
-  // Form submit handler
   const handleFormSubmit = (values, { setSubmitting, resetForm }) => {
     if (editCategory) {
       updateCategory.mutate(values, {
