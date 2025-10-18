@@ -98,12 +98,9 @@ const CategoryForm = ({
         }
       );
 
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers);
 
       // Response text-ini oxu (JSON olmaya bilər)
       const responseText = await response.text();
-      console.log("Response text:", responseText);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${responseText}`);
@@ -117,7 +114,6 @@ const CategoryForm = ({
         throw new Error(`Invalid JSON response: ${responseText}`);
       }
 
-      console.log("Parsed response data:", data);
 
       // Extract URL from response: data.media.url
       const imageUrl = data.media?.url;
@@ -343,8 +339,8 @@ const CategoryForm = ({
                         key={category.id}
                         value={category.id.toString()}
                       >
-                        {category.name?.en ||
-                          category.title?.en ||
+                        {category.name?.az ||
+                          category.title?.az ||
                           `Category ${category.id}`}
                       </SelectItem>
                     ))}
