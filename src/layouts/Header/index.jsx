@@ -50,10 +50,10 @@ const Header = () => {
       </div>
       {/* Center: Title or logo */}
       <div className="flex-1 flex justify-center">
-        <span className="text-lg font-semibold tracking-tight select-none">HotelShop Admin Panel</span>
+        <span className="text-sm sm:text-lg font-semibold tracking-tight select-none">HotelShop Admin Panel</span>
       </div>
       {/* Right: Dark mode toggle, language switcher and user menu */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         {/* Language switcher */}
         <LanguageSwitcher />
         {/* Dark mode toggle */}

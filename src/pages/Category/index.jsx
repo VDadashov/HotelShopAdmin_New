@@ -1,11 +1,12 @@
 import * as React from "react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useGet } from "@/utils/hooks/useCustomQuery";
 import { usePost, useUpdate, useDelete } from "@/utils/hooks/useCustomMutation";
+import { useDebounce } from "@/utils/hooks";
 import { ENDPOINTS } from "@/utils/constants/Endpoints";
 
 // Import components
@@ -15,14 +16,66 @@ import CategoryDeleteModal from "@/components/Categories/CategoryDeleteModal";
 import CategoryTable from "@/components/Categories/CategoryTable";
 
 export default function Category() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   const [showCreate, setShowCreate] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
   const [deleteCategory, setDeleteCategory] = useState(null);
   const [viewCategory, setViewCategory] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [filters, setFilters] = useState({
+    level: null,
+    parentId: null,
+    isActive: null,
+    limit: 10,
+    page: 1
+  });
 
-  const { data: categoryList = [], isLoading, refetch } = useGet("categories", `${ENDPOINTS.getCategories}?allLanguages=true`);
+  // Debounced search value (300ms delay)
+  const debouncedSearchValue = useDebounce(searchValue, 300);
+
+  // Debug search values
+  useEffect(() => {
+    console.log('Search Value:', searchValue);
+    console.log('Debounced Search Value:', debouncedSearchValue);
+  }, [searchValue, debouncedSearchValue]);
+
+  // API endpoint-i dinamik olaraq qururuq
+  const apiUrl = useMemo(() => {
+    console.log('useMemo: Building API URL with debouncedSearchValue:', debouncedSearchValue, 'type:', typeof debouncedSearchValue);
+    console.log('useMemo: debouncedSearchValue.trim():', debouncedSearchValue.trim());
+    console.log('useMemo: debouncedSearchValue.trim() length:', debouncedSearchValue.trim().length);
+    
+    const params = new URLSearchParams();
+    
+    if (debouncedSearchValue.trim()) {
+      console.log('useMemo: Adding search parameter:', debouncedSearchValue.trim());
+      params.append('search', debouncedSearchValue.trim());
+    } else {
+      console.log('useMemo: NOT adding search parameter because debouncedSearchValue is empty');
+    }
+    
+    if (filters.level !== null) {
+      params.append('level', filters.level);
+    }
+    
+    if (filters.parentId !== null) {
+      params.append('parentId', filters.parentId);
+    }
+    
+    if (filters.isActive !== null) {
+      params.append('isActive', filters.isActive);
+    }
+    
+    params.append('limit', filters.limit);
+    params.append('page', filters.page);
+    
+    const url = `${ENDPOINTS.categories}?${params.toString()}`;
+    console.log('useMemo: Generated API URL:', url);
+    return url;
+  }, [debouncedSearchValue, filters]);
+
+  const { data: categoryList = [], isLoading, refetch } = useGet("categories", apiUrl, i18n.language);
   const createCategory = usePost("categories", ENDPOINTS.categories);
   const updateCategory = useUpdate("categories", ENDPOINTS.categories, editCategory?.id);
   const deleteCategoryMutation = useDelete("categories", ENDPOINTS.categories, deleteCategory?.id);
@@ -90,15 +143,15 @@ export default function Category() {
 
   return (
     <div className="w-full mx-auto py-10 px-4">
-      <div className="flex items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold">{t('categories.title')}</h1>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold">{t('categories.title')}</h1>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button 
             onClick={() => { 
               setShowCreate(true); 
               setEditCategory(null); 
             }} 
-            className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))]"
+            className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))] w-full sm:w-auto"
           >
             {t('categories.addCategory')}
           </Button>
@@ -134,13 +187,17 @@ export default function Category() {
         isDeleting={deleteCategoryMutation.isPending}
       />
 
-      {/* Category Table */}
-      <CategoryTable
-        data={tableData}
-        onView={setViewCategory}
-        onEdit={handleEdit}
-        onDelete={setDeleteCategory}
-      />
+        {/* Category Table */}
+        <CategoryTable
+          data={tableData}
+          onView={setViewCategory}
+          onEdit={handleEdit}
+          onDelete={setDeleteCategory}
+          onSearch={setSearchValue}
+          searchValue={searchValue}
+          onFiltersChange={setFilters}
+          filters={filters}
+        />
 
       <Toaster
         position="top-right"

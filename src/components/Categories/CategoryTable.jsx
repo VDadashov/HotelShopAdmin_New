@@ -1,31 +1,54 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { DataTable } from "@/components/ui/DataTable";
-import { Button } from "@/components/ui/button";
-import {
-  MoreHorizontal,
-  Pencil,
-  Trash,
-  Eye,
-  Copy,
-  Tag,
-  CheckCircle,
-  XCircle,
-  FolderTree,
-} from "lucide-react";
-import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { customFilter } from "@/components/ui/DataTable";
+import BaseTable from "@/components/common/tables/BaseTable";
+import ActionsColumn from "@/components/common/tables/ActionsColumn";
+import MultilingualCell from "@/components/common/tables/MultilingualCell";
+import StatusCell from "@/components/common/tables/StatusCell";
+import { FolderTree, Tag } from "lucide-react";
 
-const CategoryTable = ({ data, onView, onEdit, onDelete }) => {
+// Category-specific filter function
+const categoryFilter = (row, columnId, value) => {
+  const item = row.original;
+  const searchTerm = value.toLowerCase();
+  
+  // Name field-da axtar (multilingual)
+  const nameMatch = item.name && typeof item.name === 'object' && Object.values(item.name).some(val =>
+    val && val.toLowerCase().includes(searchTerm)
+  );
+  
+  // Parent name-də axtar (əgər varsa)
+  const parentMatch = item.parent && item.parent.name && typeof item.parent.name === 'object' && Object.values(item.parent.name).some(val =>
+    val && val.toLowerCase().includes(searchTerm)
+  );
+  
+  // Index-də axtar
+  const indexMatch = item.index && item.index.toString().includes(searchTerm);
+  
+  // Level-də axtar
+  const levelMatch = item.level && item.level.toString().includes(searchTerm);
+  
+  return nameMatch || parentMatch || indexMatch || levelMatch;
+};
+
+const CategoryTable = ({ 
+  data, 
+  onView, 
+  onEdit, 
+  onDelete, 
+  onSearch, 
+  searchValue, 
+  onFiltersChange, 
+  filters 
+}) => {
   const { t, i18n } = useTranslation();
+
+  // Debounced search handler
+  const handleSearchChange = (value) => {
+    console.log('CategoryTable handleSearchChange:', value);
+    if (onSearch) {
+      onSearch(value);
+    }
+  };
 
   const columns = useMemo(
     () => [
@@ -34,27 +57,12 @@ const CategoryTable = ({ data, onView, onEdit, onDelete }) => {
         header: t("common.name"),
         cell: ({ row }) => {
           const name = row.original.name;
-
-          let displayName = "";
-          if (typeof name === "object" && name !== null) {
-            displayName =
-              name[i18n.language] || name.az || name.en || name.ru || "";
-          } else {
-            displayName = name || "";
-          }
-
           return (
             <div>
-              <div className="font-medium text-gray-900 dark:text-gray-100">
-                {displayName}
-              </div>
+              <MultilingualCell value={name} />
               {row.original.parent && (
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Parent:{" "}
-                  {typeof row.original.parent.name === "object"
-                    ? row.original.parent.name[i18n.language] ||
-                      row.original.parent.name.en
-                    : row.original.parent.name}
+                  Parent: <MultilingualCell value={row.original.parent.name} />
                 </div>
               )}
             </div>
@@ -93,28 +101,7 @@ const CategoryTable = ({ data, onView, onEdit, onDelete }) => {
       {
         accessorKey: "isActive",
         header: t("common.status"),
-        cell: ({ row }) => {
-          const isActive = row.original.isActive;
-          return (
-            <div className="flex items-center space-x-2">
-              {isActive ? (
-                <>
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    {t("common.active")}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-4 w-4 text-red-600" />
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                    {t("common.inactive")}
-                  </span>
-                </>
-              )}
-            </div>
-          );
-        },
+        cell: ({ row }) => <StatusCell isActive={row.original.isActive} />,
       },
       {
         accessorKey: "isProductHolder",
@@ -165,67 +152,35 @@ const CategoryTable = ({ data, onView, onEdit, onDelete }) => {
         id: "actions",
         header: t("common.actions"),
         cell: ({ row }) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{t("common.actions")}</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => {
-                  navigator.clipboard.writeText(row.original.id);
-                  toast.success(t("categories.idCopied"));
-                }}
-                className="text-blue-600 hover:bg-blue-50 focus:bg-blue-100 dark:hover:bg-blue-900 dark:hover:text-blue-200"
-              >
-                <Copy className="w-4 h-4 mr-2 text-blue-600" />{" "}
-                {t("categories.copyId")}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => onView(row.original)}
-                className="text-green-600 hover:bg-green-50 focus:bg-green-100 dark:hover:bg-green-900 dark:hover:text-green-200"
-              >
-                <Eye className="w-4 h-4 mr-2 text-green-600" />{" "}
-                {t("common.view")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onEdit(row.original)}
-                className="text-yellow-600 hover:bg-yellow-50 focus:bg-yellow-100 dark:hover:bg-yellow-900 dark:hover:text-yellow-200"
-              >
-                <Pencil className="w-4 h-4 mr-2 text-yellow-600" />{" "}
-                {t("common.edit")}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => onDelete(row.original)}
-                className="text-red-600 hover:bg-red-50 focus:bg-red-100 dark:hover:bg-red-900 dark:hover:text-red-200"
-              >
-                <Trash className="w-4 h-4 mr-2 text-red-600" />{" "}
-                {t("common.delete")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ActionsColumn
+            row={row}
+            onView={onView}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            titleKey="categories"
+          />
         ),
         enableSorting: false,
         enableHiding: false,
       },
     ],
-    [t, i18n.language, onView, onEdit, onDelete]
+    [t, onView, onEdit, onDelete]
   );
 
   return (
-    <DataTable
-      columns={columns}
+    <BaseTable
       data={data}
-      filterKey="custom"
-      filterPlaceholder={t("categories.searchPlaceholder")}
-      filterFn={customFilter}
-      tableClassName="bg-background dark:bg-[#181818] divide-y divide-gray-200"
-      headerClassName="bg-gray-100 text-gray-700"
+      columns={columns}
+      onView={onView}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      titleKey="categories"
+      filterKey="global"
+      filterFn={null} // API-based search istifadə edirik
+      searchValue={searchValue}
+      onSearchChange={handleSearchChange}
+      onFiltersChange={onFiltersChange}
+      filters={filters}
     />
   );
 };

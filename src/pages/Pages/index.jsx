@@ -99,15 +99,15 @@ export default function Page() {
 
   return (
     <div className="w-full mx-auto py-10 px-4">
-      <div className="flex items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold">{t("page.title")}</h1>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold">{t("page.title")}</h1>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button
             onClick={() => {
               setShowCreate(true);
               seteditPage(null);
             }}
-            className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))]"
+            className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))] w-full sm:w-auto"
           >
             {t("page.addPage")}
           </Button>

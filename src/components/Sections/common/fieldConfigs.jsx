@@ -3,6 +3,134 @@ export const sectionFieldConfigs = {
   footer: {
     fields: [
       {
+        key: "logo",
+        type: "object",
+        label: "Logo Information",
+        objectFields: [
+          
+          {
+            key: "subtitle",
+            type: "text",
+            label: "Logo Subtitle",
+            placeholder: "hotel spa boutique",
+            required: false,
+          },
+          
+        ],
+      },
+      {
+        key: "mainPages",
+        type: "object",
+        label: "Main Pages Section",
+        objectFields: [
+          {
+            key: "title",
+            type: "multilingual",
+            label: "Section Title",
+            placeholder: "Əsas səhifələr",
+            required: false,
+          },
+          {
+            key: "links",
+            type: "array",
+            label: "Page Links",
+            itemFields: [
+              {
+                key: "text",
+                type: "multilingual",
+                label: "Link Text",
+                placeholder: "Ana Səhifə",
+                required: true,
+              },
+              {
+                key: "url",
+                type: "text",
+                label: "Link URL",
+                placeholder: "/",
+                required: true,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        key: "usefulLinks",
+        type: "object",
+        label: "Useful Links Section",
+        objectFields: [
+          {
+            key: "title",
+            type: "multilingual",
+            label: "Section Title",
+            placeholder: "Faydalı linklər",
+            required: false,
+          },
+          {
+            key: "links",
+            type: "array",
+            label: "Useful Links",
+            itemFields: [
+              {
+                key: "text",
+                type: "multilingual",
+                label: "Link Text",
+                placeholder: "FAQ",
+                required: true,
+              },
+              {
+                key: "url",
+                type: "text",
+                label: "Link URL",
+                placeholder: "/faq",
+                required: true,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        key: "socialMedia",
+        type: "object",
+        label: "Social Media Section",
+        objectFields: [
+          {
+            key: "title",
+            type: "multilingual",
+            label: "Section Title",
+            placeholder: "Bizi izləyin",
+            required: false,
+          },
+          {
+            key: "platforms",
+            type: "array",
+            label: "Social Media Platforms",
+            itemFields: [
+              {
+                key: "platform",
+                type: "text",
+                label: "Platform Name",
+                placeholder: "facebook",
+                required: true,
+              },
+              {
+                key: "url",
+                type: "text",
+                label: "Profile URL",
+                placeholder: "https://facebook.com/hotelshop",
+                required: true,
+              },
+              {
+                key: "icon",
+                type: "text",
+                label: "Icon Name",
+                placeholder: "facebook",
+                required: false,
+              },
+            ],
+          },
+        ],
+      },
+      {
         key: "copyright",
         type: "object",
         label: "Copyright Information",
@@ -15,86 +143,24 @@ export const sectionFieldConfigs = {
             required: false,
           },
           {
-            key: "text",
-            type: "multilingual",
-            label: "Copyright Text",
-            fieldType: "textarea",
-            required: false,
-          },
-        ],
-      },
-      {
-        key: "companyInfo",
-        type: "object",
-        label: "Company Information",
-        objectFields: [
-          {
-            key: "name",
+            key: "companyName",
             type: "text",
             label: "Company Name",
-            placeholder: "G-STONE",
+            placeholder: "HotelShop",
             required: false,
           },
           {
-            key: "contact",
-            type: "object",
-            label: "Contact Information",
-            objectFields: [
-              {
-                key: "phone",
-                type: "text",
-                label: "Phone",
-                placeholder: "+39 049 9299011",
-                required: false,
-              },
-              {
-                key: "email",
-                type: "text",
-                label: "Email",
-                placeholder: "info@gstonegallery",
-                required: false,
-              },
-              {
-                key: "fax",
-                type: "text",
-                label: "Fax",
-                placeholder: "+39 049 9299000",
-                required: false,
-              },
-            ],
+            key: "poweredBy",
+            type: "text",
+            label: "Powered By",
+            placeholder: "Rockvell",
+            required: false,
           },
           {
-            key: "location",
+            key: "fullText",
             type: "multilingual",
-            label: "Location",
-            required: false,
-          },
-        ],
-      },
-      {
-        key: "socialMedia",
-        type: "array",
-        label: "Social Media Links",
-        itemFields: [
-          {
-            key: "platform",
-            type: "text",
-            label: "Platform",
-            placeholder: "instagram",
-            required: true,
-          },
-          {
-            key: "url",
-            type: "text",
-            label: "URL",
-            placeholder: "https://instagram.com/gstonegallery",
-            required: true,
-          },
-          {
-            key: "icon",
-            type: "text",
-            label: "Icon Name",
-            placeholder: "instagram",
+            label: "Full Copyright Text",
+            placeholder: "Copyright © 2025 HotelShop | Powered by Rockvell",
             required: false,
           },
         ],

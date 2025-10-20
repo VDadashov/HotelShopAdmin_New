@@ -1,86 +1,138 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { useGet } from "@/utils/hooks/useCustomQuery";
+import { ENDPOINTS } from "@/utils/constants/Endpoints";
+import BaseViewModal from "@/components/common/modals/BaseViewModal";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle, Image as ImageIcon } from "lucide-react";
 
-const CompanyViewModal = ({ company, isOpen, onClose }) => {
+const BrandViewModal = ({ 
+  brand, 
+  isOpen, 
+  onClose 
+}) => {
   const { t, i18n } = useTranslation();
 
-  if (!company) return null;
+  // Get brand details with allLanguages=true
+  const detailUrl = brand?.id ? `${ENDPOINTS.brand}/${brand.id}?allLanguages=true` : null;
+  const { data: brandDetailResponse } = useGet("brandDetail", detailUrl, i18n.language);
+  const displayBrand = brandDetailResponse?.data || brand;
+
+  const getLanguageName = (multilingual, lang = i18n.language) => {
+    if (!multilingual) return "";
+    return (
+      multilingual[lang] ||
+      multilingual.az ||
+      multilingual.en ||
+      multilingual.ru ||
+      ""
+    );
+  };
+
+  if (!displayBrand) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg w-full rounded-2xl shadow-2xl bg-card dark:bg-[#232323] p-8 border-0">
-        <DialogHeader className="mb-4">
-          <DialogTitle className="text-xl font-bold text-foreground">
-            {t('companies.companyDetails')}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4">
-          <div className="flex gap-4 items-center">
-            {company.logo ? (
-              <img
-                src={
-                  typeof company.logo === "string"
-                    ? company.logo
-                    : URL.createObjectURL(company.logo)
-                }
-                alt="Logo"
-                className="w-20 h-20 object-contain rounded-md border"
-              />
-            ) : (
-              <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 text-xs border">
-                {t('companies.noLogo')}
-              </div>
-            )}
-            <div>
-              <div className="font-semibold text-lg">
-                {typeof company.title === "object"
-                  ? company.title[i18n.language] || company.title.az || ""
-                  : company.title || ""}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                ID: {company.id}
-              </div>
+    <BaseViewModal
+      data={displayBrand}
+      isOpen={isOpen}
+      onClose={onClose}
+      titleKey="brands"
+      maxWidth="max-w-4xl"
+    >
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">
+          {getLanguageName(displayBrand.name)}
+        </h2>
+      </div>
+
+      {/* Brand Names */}
+      <div className="border-t pt-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4">
+          {t("brands.brandName")}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+              Azərbaycanca
+            </div>
+            <div className="font-medium text-foreground">
+              {displayBrand.name?.az || "-"}
             </div>
           </div>
-          
-          <div>
-            <div className="font-semibold mb-1">{t('common.description')}</div>
-            <div className="text-gray-700 text-sm text-foreground">
-              {typeof company.description === "object"
-                ? company.description[i18n.language] ||
-                  company.description.az ||
-                  ""
-                : company.description || ""}
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+              English
+            </div>
+            <div className="font-medium text-foreground">
+              {displayBrand.name?.en || "-"}
             </div>
           </div>
-          
-          <div>
-            <div className="font-semibold mb-1">{t('common.categories')}</div>
-            <div className="flex flex-wrap gap-2">
-              {Array.isArray(company.categories) &&
-                company.categories.map((cat, i) => (
-                  <span
-                    key={i}
-                    className="bg-muted dark:bg-[#232323] text-foreground rounded-full px-3 py-1 text-xs font-medium"
-                  >
-                    {typeof cat.title === "object"
-                      ? cat.title[i18n.language] || cat.title.az || ""
-                      : cat.title || ""}
-                  </span>
-                ))}
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+              Русский
+            </div>
+            <div className="font-medium text-foreground">
+              {displayBrand.name?.ru || "-"}
             </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+
+      {/* Brand Image */}
+      {displayBrand.imageUrl && (
+        <div className="border-t pt-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4">
+            {t("brands.brandImage")}
+          </h3>
+          <div className="relative w-full max-w-xs">
+            <img
+              src={displayBrand.imageUrl}
+              alt={getLanguageName(displayBrand.name)}
+              className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg border"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Status */}
+      <div className="border-t pt-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4">
+          {t("common.status")}
+        </h3>
+        <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+          <div className="flex items-center gap-2">
+            {displayBrand.isActive ? (
+              <>
+                <CheckCircle size={16} className="text-green-600" />
+                <span className="font-semibold text-green-600">
+                  {t("common.active")}
+                </span>
+              </>
+            ) : (
+              <>
+                <XCircle size={16} className="text-red-600" />
+                <span className="font-semibold text-red-600">
+                  {t("common.inactive")}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Timestamps */}
+      <div className="border-t pt-6 text-xs text-gray-500 dark:text-gray-400 space-y-1">
+        <div>
+          Yaradıldı:{" "}
+          {new Date(displayBrand.createdAt).toLocaleString(i18n.language)}
+        </div>
+        <div>
+          Yeniləndi:{" "}
+          {new Date(displayBrand.updatedAt).toLocaleString(i18n.language)}
+        </div>
+      </div>
+    </BaseViewModal>
   );
 };
 
-export default CompanyViewModal; 
+export default BrandViewModal;

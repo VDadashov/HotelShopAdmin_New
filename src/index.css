@@ -151,3 +151,12 @@
   background: rgba(16, 185, 129, 0.22) !important;
   color: #fff !important;
 }
+
+/* Dialog scroll fix */
+[data-radix-dialog-content] {
+  overflow: hidden !important;
+}
+
+[data-radix-dialog-content] > * {
+  overflow: visible !important;
+}

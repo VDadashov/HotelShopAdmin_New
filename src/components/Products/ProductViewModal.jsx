@@ -1,13 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useGet } from "@/utils/hooks/useCustomQuery";
+import { ENDPOINTS } from "@/utils/constants/Endpoints";
+import BaseViewModal from "@/components/common/modals/BaseViewModal";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 const ProductViewModal = ({ 
   product, 
@@ -16,94 +13,180 @@ const ProductViewModal = ({
 }) => {
   const { t, i18n } = useTranslation();
 
+  // Get product details with allLanguages=true
+  const detailUrl = product?.id ? `${ENDPOINTS.products}/${product.id}?allLanguages=true` : null;
+  const { data: productDetailResponse } = useGet("productDetail", detailUrl, i18n.language);
+  const displayProduct = productDetailResponse?.data || product;
+
+  const getLanguageName = (multilingual, lang = i18n.language) => {
+    if (!multilingual) return "";
+    return (
+      multilingual[lang] ||
+      multilingual.az ||
+      multilingual.en ||
+      multilingual.ru ||
+      ""
+    );
+  };
+
+  // Early return if product is null
+  if (!displayProduct) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg w-full rounded-2xl shadow-2xl bg-card dark:bg-[#232323] p-8 border-0">
-        <DialogHeader className="mb-4">
-          <DialogTitle className="text-xl font-bold text-foreground">
-            {t('products.productDetails')}
-          </DialogTitle>
-        </DialogHeader>
-        
-        {product && (
-          <div className="space-y-4">
-            <div className="flex gap-4 items-center">
-              {product.mainImage && (
-                <img 
-                  src={product.mainImage} 
-                  alt="main" 
-                  className="w-20 h-20 object-contain rounded-md border" 
-                />
-              )}
-              <div>
-                <div className="font-semibold text-lg">
-                  {product.title?.[i18n.language] || product.title?.az || ""}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  ID: {product.id}
-                </div>
-              </div>
+    <BaseViewModal
+      data={displayProduct}
+      isOpen={isOpen}
+      onClose={onClose}
+      titleKey="products"
+      maxWidth="max-w-4xl"
+    >
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">
+          {getLanguageName(displayProduct.name)}
+        </h2>
+      </div>
+
+      {/* Product Names */}
+      <div className="border-t pt-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4">
+          {t("products.productName")}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+              Azərbaycanca
             </div>
-            
-            <div>
-              <div className="font-semibold mb-1">{t('products.productDescription')}</div>
-              <div className="text-gray-700 text-sm text-foreground">
-                {product.description?.[i18n.language] || product.description?.az || ""}
-              </div>
+                   <div className="font-medium text-foreground">
+                     {displayProduct.name?.az || "-"}
+                   </div>
+                 </div>
+                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                   <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                     English
+                   </div>
+                   <div className="font-medium text-foreground">
+                     {displayProduct.name?.en || "-"}
+                   </div>
+                 </div>
+                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                   <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                     Русский
+                   </div>
+                   <div className="font-medium text-foreground">
+                     {displayProduct.name?.ru || "-"}
+                   </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Product Description */}
+      <div className="border-t pt-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4">
+          {t("products.productDescription")}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+              Azərbaycanca
             </div>
-            
-            <div>
-              <div className="font-semibold mb-1">{t('products.imageList')}</div>
-              <div className="flex flex-wrap gap-2">
-                {Array.isArray(product.imageList) && product.imageList.map((img, i) => (
-                  <img 
-                    key={i} 
-                    src={img} 
-                    alt="img" 
-                    className="w-16 h-16 object-contain rounded border" 
-                  />
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <div className="font-semibold mb-1">{t('products.detailPdf')}</div>
-              {product.detailPdf && (
-                <a 
-                  href={product.detailPdf} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center gap-2 text-blue-600 underline"
-                >
-                  <Download className="w-5 h-5" /> {t('products.downloadPdf')}
-                </a>
-              )}
-            </div>
-            
-            <div>
-              <div className="font-semibold mb-1">{t('products.productCategory')}</div>
-              <div>
-                {product.category?.title?.[i18n.language] || 
-                 product.category?.title?.az || 
-                 product.category?.title || 
-                 product.categoryId}
-              </div>
-            </div>
-            
-            <div>
-              <div className="font-semibold mb-1">{t('products.productCompany')}</div>
-              <div>
-                {product.company?.title?.[i18n.language] || 
-                 product.company?.title?.az || 
-                 product.company?.title || 
-                 product.companyId}
+                   <div className="font-medium text-foreground">
+                     {displayProduct.description?.az || "-"}
+                   </div>
+                 </div>
+                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                   <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                     English
+                   </div>
+                   <div className="font-medium text-foreground">
+                     {displayProduct.description?.en || "-"}
+                   </div>
+                 </div>
+                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                   <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                     Русский
+                   </div>
+                   <div className="font-medium text-foreground">
+                     {displayProduct.description?.ru || "-"}
+                   </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Image */}
+      {displayProduct.mainImg && (
+        <div className="border-t pt-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4">
+            {t("products.mainImage")}
+          </h3>
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="flex justify-center">
+              <img
+                src={displayProduct.mainImg}
+                alt={getLanguageName(displayProduct.name)}
+                className="max-w-full max-h-96 object-contain rounded-lg border"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div
+                className="w-64 h-64 bg-gray-200 dark:bg-gray-700 rounded-lg border flex items-center justify-center text-gray-500"
+                style={{ display: 'none' }}
+              >
+                {t("brands.noImage")}
               </div>
             </div>
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+        </div>
+      )}
+
+      {/* Category */}
+      <div className="border-t pt-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4">
+          {t("common.category")}
+        </h3>
+        <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+            {t("common.category")}
+          </div>
+                 <div className="font-medium text-foreground">
+                   {getLanguageName(displayProduct.category?.name) || "-"}
+                 </div>
+        </div>
+      </div>
+
+      {/* PDF Download */}
+      {displayProduct.pdf && (
+        <div className="border-t pt-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4">
+            {t("products.detailPdf")}
+          </h3>
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <Button
+              variant="outline"
+              onClick={() => window.open(displayProduct.pdf, '_blank')}
+              className="gap-2"
+            >
+              <Download size={16} />
+              {t("products.downloadPdf")}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Timestamps */}
+      <div className="border-t pt-6 text-xs text-gray-500 dark:text-gray-400 space-y-1">
+        <div>
+          Yaradıldı:{" "}
+          {new Date(displayProduct.createdAt).toLocaleString(i18n.language)}
+        </div>
+        <div>
+          Yeniləndi:{" "}
+          {new Date(displayProduct.updatedAt).toLocaleString(i18n.language)}
+        </div>
+      </div>
+    </BaseViewModal>
   );
 };
 
-export default ProductViewModal; 
+export default ProductViewModal;

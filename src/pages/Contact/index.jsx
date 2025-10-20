@@ -20,8 +20,8 @@ export default function Contact() {
 
   return (
     <div className="w-full mx-auto py-10 px-4">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">{t('contacts.title')}</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold">{t('contacts.title')}</h1>
       </div>
 
       {/* Components */}

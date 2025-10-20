@@ -3,8 +3,8 @@
 export const MAIN_URL = "http://localhost:3001/api";
 
 export const ENDPOINTS = {
-  company: `${MAIN_URL}/company`,
-  getCategories: `${MAIN_URL}/categories/all`,
+  brand: `${MAIN_URL}/brands`,
+  getAllCategories: `${MAIN_URL}/categories/all?allLanguages=true`,
   categories: `${MAIN_URL}/categories`,
   products: `${MAIN_URL}/products`,
   galleryCategory: `${MAIN_URL}/gallery-category`,
@@ -14,6 +14,8 @@ export const ENDPOINTS = {
   // pages & sections
   pages: `${MAIN_URL}/pages`,
   sections: `${MAIN_URL}/sections`,
+  testimonials: `${MAIN_URL}/testimonials`,
+  promos: `${MAIN_URL}/promos`,
   uploadImage: `${MAIN_URL}/upload/image`,
   uploadVideo: `${MAIN_URL}/upload/video`,
 

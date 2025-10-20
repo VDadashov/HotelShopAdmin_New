@@ -197,8 +197,8 @@ export const Settings = () => {
 
   return (
     <div className="w-full mx-auto py-10 px-4">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">{t('settings.title')}</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold">{t('settings.title')}</h1>
       </div>
       <Dialog open={!!viewSettings} onOpenChange={v => { if (!v) setViewSettings(null); }}>
         <DialogContent className="max-w-2xl w-full rounded-2xl shadow-2xl bg-card dark:bg-[#232323] p-8 border-0">

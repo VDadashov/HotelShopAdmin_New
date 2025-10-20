@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useLocation } from "react-router-dom";
-import { LayoutGrid, Home, Layers, ShoppingCart, Image, Folder, UserCircle2, Briefcase, StickyNote, LayoutPanelTop } from "lucide-react";
+import { LayoutGrid, Home, Layers, ShoppingCart, Image, Folder, UserCircle2, Briefcase, StickyNote, LayoutPanelTop, MessageSquare, Percent } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import {
   Sidebar,
@@ -36,11 +36,11 @@ export function SiderBar({ ...props }) {
             url: "/",
             icon: <Home className="size-4" />,
           },
-          // {
-          //   title: t("common.brands"),
-          //   url: "/brand",
-          //   icon: <Briefcase className="size-4" />,
-          // },
+          {
+            title: t("common.brands"),
+            url: "/brand",
+            icon: <Briefcase className="size-4" />,
+          },
           {
             title: t("common.categories"),
             url: "/category",
@@ -75,6 +75,16 @@ export function SiderBar({ ...props }) {
             title: t("common.contacts"),
             url: "/contact",
             icon: <UserCircle2 className="size-4" />,
+          },
+          {
+            title: t("common.testimonials"),
+            url: "/testimonial",
+            icon: <MessageSquare className="size-4" />,
+          },
+          {
+            title: t("common.promos"),
+            url: "/promo",
+            icon: <Percent className="size-4" />,
           },
           // {
           //   title: t('common.settings'),

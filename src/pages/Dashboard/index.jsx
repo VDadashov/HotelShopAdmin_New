@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Users, Briefcase, Wrench, Building2, Lightbulb, Layers, Image, Tag, BookOpen } from "lucide-react";
+import { CheckCircle2, Users, Briefcase, Wrench, Building2, Lightbulb, Layers, Image, Tag, BookOpen, Star, FileText, Grid3X3, Percent } from "lucide-react";
 import { useGet } from "@/utils/hooks/useCustomQuery";
 import { ENDPOINTS } from "@/utils/constants/Endpoints";
 import { useTranslation } from 'react-i18next';
@@ -12,14 +12,23 @@ export default function Dashboard() {
   const { data: products = [] } = useGet("products", ENDPOINTS.products);
   console.log(products);
   
-  const { data: galleryItems = [] } = useGet("gallery-items", ENDPOINTS.galleryItem);
-  const { data: categories = [] } = useGet("categories", ENDPOINTS.getCategories);
+  const { data: categories = [] } = useGet("categories", ENDPOINTS.getAllCategories);
   const { data: contacts = [] } = useGet("contacts", ENDPOINTS.contact);
+  const { data: brands = [] } = useGet("brands", ENDPOINTS.brand);
+  const { data: testimonials = [] } = useGet("testimonials", ENDPOINTS.testimonials);
+  const { data: pages = [] } = useGet("pages", ENDPOINTS.pages);
+  const { data: sections = [] } = useGet("sections", ENDPOINTS.sections);
+  const { data: promos = [] } = useGet("promos", ENDPOINTS.promos);
 
   // Stat Cards
   const statCards = [
-    { title: t('common.products'), count: products.data?.length, icon: <Layers className="w-8 h-8 text-pink-500 mb-2" />, path: "/products" },
-    { title: t('common.categories'), count: categories?.data?.length, icon: <Tag className="w-8 h-8 text-yellow-500 mb-2" />, path: "/category" },
+    { title: t('common.products'), count: products?.data?.length || 0, icon: <Layers className="w-8 h-8 text-pink-500 mb-2" />, path: "/products" },
+    { title: t('common.categories'), count: categories?.data?.length || 0, icon: <Tag className="w-8 h-8 text-yellow-500 mb-2" />, path: "/category" },
+    { title: t('common.brands'), count: brands?.data?.length || 0, icon: <Building2 className="w-8 h-8 text-blue-500 mb-2" />, path: "/brand" },
+    { title: t('common.testimonials'), count: testimonials?.data?.length || 0, icon: <Star className="w-8 h-8 text-purple-500 mb-2" />, path: "/testimonial" },
+    { title: t('common.promos'), count: promos?.data?.length || 0, icon: <Percent className="w-8 h-8 text-red-500 mb-2" />, path: "/promo" },
+    { title: t('common.pages'), count: pages?.data?.length || 0, icon: <FileText className="w-8 h-8 text-green-500 mb-2" />, path: "/pages" },
+    { title: t('common.sections'), count: sections?.data?.length || 0, icon: <Grid3X3 className="w-8 h-8 text-orange-500 mb-2" />, path: "/section" },
     // { title: t('common.contacts'), count: contacts.length, icon: <Users className="w-8 h-8 text-gray-500 mb-2" />, path: "/contact" },
   ];
 
@@ -39,7 +48,7 @@ export default function Dashboard() {
     <div className="w-full mx-auto py-10 px-4 max-w-7xl">
       <h1 className="text-2xl font-bold mb-8">{t('dashboard.welcome')}</h1>
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-6 mb-8">
         {statCards.map((card) => (
           <Card 
             key={card.title}

@@ -11,6 +11,8 @@ import Dashboard from "@/pages/Dashboard"
 import Page from "@/pages/Pages"
 import Section from "@/pages/Section"
 import Brand from "@/pages/Brand"
+import Testimonial from "@/pages/Testimonial"
+import Promo from "@/pages/Promo"
 
 // import Contact from "../pages/Contact";
 
@@ -62,6 +64,14 @@ const routes = createBrowserRouter([
       {
         path: "/section",
         element: <Section />,
+      },
+      {
+        path: "/testimonial",
+        element: <Testimonial />,
+      },
+      {
+        path: "/promo",
+        element: <Promo />,
       },
       // {
       //     path: "/settings",

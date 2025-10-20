@@ -1,516 +1,264 @@
 import React, { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
+import { useGet } from "@/utils/hooks/useCustomQuery";
+import { ENDPOINTS } from "@/utils/constants/Endpoints";
+import BaseForm from "@/components/common/forms/BaseForm";
+import MultilingualField from "@/components/common/forms/MultilingualField";
+import BasicField from "@/components/common/forms/BasicField";
+import SwitchField from "@/components/common/forms/SwitchField";
+import SelectField from "@/components/common/forms/SelectField";
+import { commonValidations } from "@/utils/validationSchemas";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Upload, X, Image as ImageIcon } from "lucide-react";
+import axiosInstance from "@/utils/api/axiosInstance";
+import { toast } from "sonner";
 
 const ProductForm = ({
   isOpen,
   onClose,
   editProduct,
   onSubmit,
+  isSubmitting,
   categoryList,
 }) => {
   const { t, i18n } = useTranslation();
 
+  // Get product details for editing with allLanguages=true
+  const detailUrl = editProduct?.id ? `${ENDPOINTS.products}/${editProduct.id}?allLanguages=true` : null;
+  const { data: editProductResponse } = useGet("editProduct", detailUrl, i18n.language);
+  const displayEditProduct = editProductResponse?.data || editProduct;
+
+  console.log('ProductForm - editProduct:', editProduct);
+  console.log('ProductForm - editProductResponse:', editProductResponse);
+  console.log('ProductForm - displayEditProduct:', displayEditProduct);
 
   const [editMainImg, setEditMainImg] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
 
   useEffect(() => {
-    if (editProduct) {
-      setEditMainImg(editProduct.mainImg || "");
+    if (displayEditProduct) {
+      setEditMainImg(displayEditProduct.mainImg || "");
+      setUploadedImageUrl(displayEditProduct.mainImg || "");
     } else {
       setEditMainImg("");
+      setUploadedImageUrl("");
     }
-  }, [editProduct]);
-
-  const initialValues = editProduct
-    ? {
-        ...editProduct,
-        categoryId: editProduct.categoryId
-          ? String(editProduct.categoryId)
-          : "",
-        mainImg: "", // file input üçün həmişə boş olmalıdır
-        isActive: editProduct.isActive ?? true,
-      }
-    : {
-        name: { az: "", en: "", ru: "" },
-        description: { az: "", en: "", ru: "" },
-        mainImg: "",
-        categoryId: "",
-        isActive: true,
-      };
-
-  const validationSchema = Yup.object({
-    name: Yup.object({
-      az: Yup.string().required(t("products.validation.nameAzRequired")),
-      en: Yup.string().required(t("products.validation.nameEnRequired")),
-      ru: Yup.string().required(t("products.validation.nameRuRequired")),
-    }),
-    description: Yup.object({
-      az: Yup.string(),
-      en: Yup.string(),
-      ru: Yup.string(),
-    }),
-    categoryId: Yup.string().required(
-      t("products.validation.categoryRequired")
-    ),
-    isActive: Yup.boolean(),
-  });
+  }, [displayEditProduct]);
 
   // Image upload function
   const handleImageUpload = async (file, setFieldValue) => {
     if (!file) return;
 
-    console.log("Uploading file:", file.name, file.type, file.size);
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      alert(t("products.validation.invalidFileType"));
-      return;
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      alert(t("products.validation.fileTooLarge"));
-      return;
-    }
-
     setImageUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      const response = await axiosInstance.post('/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-      console.log("Sending request to API...");
-
-      const response = await fetch(
-        "https://api.hotelshop.az/api/upload/image",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      console.log("Response status:", response.status);
-
-      const responseText = await response.text();
-      console.log("Response text:", responseText);
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${responseText}`);
-      }
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        throw new Error(`Invalid JSON response: ${responseText}`);
-      }
-
-      console.log("Parsed response data:", data);
-
-      const imageUrl = data.media?.url;
-
-      if (imageUrl) {
-        setFieldValue("mainImg", imageUrl);
-        setEditMainImg(imageUrl);
-        console.log("Image uploaded successfully:", imageUrl);
-      } else {
-        throw new Error("No URL in response: " + JSON.stringify(data));
+      if (response.data?.media?.url) {
+        const imageUrl = response.data.media.url;
+        
+        // Validate image URL
+        const img = new Image();
+        img.onload = () => {
+          setUploadedImageUrl(imageUrl);
+          setFieldValue('mainImg', imageUrl);
+          toast.success(t('common.imageUploaded'));
+        };
+        img.onerror = () => {
+          console.error('Image validation failed:', imageUrl);
+          toast.error(t('common.imageValidationError'));
+        };
+        img.src = imageUrl;
       }
     } catch (error) {
-      console.error("Image upload error:", error);
-      alert(`Upload failed: ${error.message}`);
+      console.error('Image upload error:', error);
+      toast.error(t('common.imageUploadError'));
     } finally {
       setImageUploading(false);
     }
   };
 
+  // Remove uploaded image
+  const removeImage = (setFieldValue) => {
+    setUploadedImageUrl("");
+    setFieldValue('mainImg', "");
+  };
+
+  const initialValues = displayEditProduct
+    ? {
+        ...displayEditProduct,
+        title: displayEditProduct.name || { az: "", en: "", ru: "" }, // name -> title mapping
+        categoryId: displayEditProduct.category?.id
+          ? String(displayEditProduct.category.id)
+          : displayEditProduct.categoryId
+          ? String(displayEditProduct.categoryId)
+          : "",
+      }
+    : {
+        title: { az: "", en: "", ru: "" },
+        description: { az: "", en: "", ru: "" },
+        categoryId: "",
+        isActive: true,
+        mainImg: "",
+      };
+
+  console.log('ProductForm - initialValues:', initialValues);
+  console.log('ProductForm - initialValues.categoryId:', initialValues.categoryId);
+
+  const validationSchema = Yup.object({
+    title: commonValidations.multilingualTitle("products"),
+    description: commonValidations.multilingualDescription("products"),
+    categoryId: commonValidations.required("products.categoryRequired"),
+    isActive: commonValidations.isActive,
+  });
+
+  console.log('ProductForm - validationSchema:', validationSchema);
+
   const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    const submitData = {
-      name: values.name,
+    console.log('ProductForm - handleSubmit called with values:', values);
+    const cleanValues = {
+      name: values.title, // title -> name
       description: values.description,
-      mainImg: values.mainImg || editMainImg,
-      categoryId: parseInt(values.categoryId),
+      categoryId: values.categoryId ? parseInt(values.categoryId) : null,
       isActive: values.isActive,
+      mainImg: uploadedImageUrl || values.mainImg || "", // Use uploaded image URL
     };
-
-    // If editing, add the ID
-    if (editProduct) {
-      submitData.id = editProduct.id;
-    }
-
-    onSubmit(submitData, { setSubmitting, resetForm });
+    console.log('ProductForm - cleanValues:', cleanValues);
+    onSubmit(cleanValues, { setSubmitting, resetForm });
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl w-full rounded-2xl shadow-2xl bg-card dark:bg-[#232323] p-8 border-0">
-        <DialogHeader className="mb-4">
-          <DialogTitle className="text-xl font-bold text-foreground">
-            {editProduct ? t("products.editProduct") : t("products.addProduct")}
-          </DialogTitle>
-        </DialogHeader>
+    <BaseForm
+      isOpen={isOpen}
+      onClose={onClose}
+      editData={displayEditProduct}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      titleKey="products"
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+    >
+      {({ values, setFieldValue }) => (
+        <div className="space-y-6">
+          {/* Product Name */}
+          <MultilingualField
+            name="title"
+            label={t("products.productName")}
+            placeholder={t("products.productNamePlaceholder")}
+            required
+          />
 
-        <Formik
-          enableReinitialize
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting, setFieldValue, values }) => (
-            <Form className="space-y-5">
-              {/* Product Name - Multilingual */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-foreground">
-                  {t("products.productName")}
-                </h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label
-                      htmlFor="name.az"
-                      className="mb-2 block text-sm font-medium"
-                    >
-                      {t("products.productName")} (AZ)
-                    </Label>
-                    <Field
-                      as={Input}
-                      name="name.az"
-                      id="name.az"
-                      placeholder={t("products.productNamePlaceholder")}
-                      className="w-full"
-                      required
-                    />
-                    <ErrorMessage
-                      name="name.az"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor="name.en"
-                      className="mb-2 block text-sm font-medium"
-                    >
-                      {t("products.productName")} (EN)
-                    </Label>
-                    <Field
-                      as={Input}
-                      name="name.en"
-                      id="name.en"
-                      placeholder={t("products.productNamePlaceholder")}
-                      className="w-full"
-                      required
-                    />
-                    <ErrorMessage
-                      name="name.en"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor="name.ru"
-                      className="mb-2 block text-sm font-medium"
-                    >
-                      {t("products.productName")} (RU)
-                    </Label>
-                    <Field
-                      as={Input}
-                      name="name.ru"
-                      id="name.ru"
-                      placeholder={t("products.productNamePlaceholder")}
-                      className="w-full"
-                      required
-                    />
-                    <ErrorMessage
-                      name="name.ru"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
-                  </div>
+          {/* Product Description */}
+          <MultilingualField
+            name="description"
+            label={t("products.productDescription")}
+            placeholder={t("products.productDescriptionPlaceholder")}
+            multiline
+          />
+
+          {/* Category Selection */}
+          <SelectField
+            name="categoryId"
+            label={t("products.productCategory")}
+            placeholder={t("products.selectCategory")}
+            options={categoryList}
+            valueKey="id"
+            labelKey="name"
+            setFieldValue={setFieldValue}
+            values={values}
+            required
+            emptyOption={t("products.selectCategory")}
+          />
+
+          {/* Main Image Upload */}
+          <div className="space-y-4">
+            <label className="text-sm font-medium text-foreground">
+              {t("products.mainImage")}
+            </label>
+            
+            {/* Image Preview */}
+            {uploadedImageUrl && (
+              <div className="relative w-full max-w-xs">
+                <img
+                  src={uploadedImageUrl}
+                  alt="Uploaded"
+                  className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg border"
+                  onError={(e) => {
+                    console.error('Image load error:', uploadedImageUrl);
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div 
+                  className="w-full h-48 sm:h-56 md:h-64 bg-gray-200 dark:bg-gray-700 rounded-lg border flex items-center justify-center text-gray-500 text-sm"
+                  style={{ display: 'none' }}
+                >
+                  Image not loading
                 </div>
-              </div>
-
-              {/* Product Description - Multilingual */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-foreground">
-                  {t("products.productDescription")}
-                </h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label
-                      htmlFor="description.az"
-                      className="mb-2 block text-sm font-medium"
-                    >
-                      {t("products.productDescription")} (AZ)
-                    </Label>
-                    <Field
-                      as={Textarea}
-                      name="description.az"
-                      id="description.az"
-                      placeholder={t("products.productDescriptionPlaceholder")}
-                      className="w-full min-h-[100px]"
-                      rows={4}
-                    />
-                    <ErrorMessage
-                      name="description.az"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor="description.en"
-                      className="mb-2 block text-sm font-medium"
-                    >
-                      {t("products.productDescription")} (EN)
-                    </Label>
-                    <Field
-                      as={Textarea}
-                      name="description.en"
-                      id="description.en"
-                      placeholder={t("products.productDescriptionPlaceholder")}
-                      className="w-full min-h-[100px]"
-                      rows={4}
-                    />
-                    <ErrorMessage
-                      name="description.en"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor="description.ru"
-                      className="mb-2 block text-sm font-medium"
-                    >
-                      {t("products.productDescription")} (RU)
-                    </Label>
-                    <Field
-                      as={Textarea}
-                      name="description.ru"
-                      id="description.ru"
-                      placeholder={t("products.productDescriptionPlaceholder")}
-                      className="w-full min-h-[100px]"
-                      rows={4}
-                    />
-                    <ErrorMessage
-                      name="description.ru"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Image */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-foreground">
-                  {t("products.mainImage")}
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label
-                      htmlFor="mainImg"
-                      className="mb-2 block text-sm font-medium"
-                    >
-                      {t("products.selectMainImage")}
-                    </Label>
-                    <Input
-                      id="mainImg"
-                      name="mainImg"
-                      type="file"
-                      accept="image/*"
-                      className="w-full"
-                      disabled={imageUploading}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleImageUpload(file, setFieldValue);
-                        }
-                      }}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {imageUploading
-                        ? t("products.uploading")
-                        : t("products.imageUploadHint")}
-                    </p>
-                  </div>
-
-                  {/* Image Preview */}
-                  <div>
-                    <Label className="mb-2 block text-sm font-medium">
-                      {t("products.imagePreview")}
-                    </Label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-32 flex items-center justify-center">
-                      {/* Show uploaded image URL */}
-                      {values.mainImg && typeof values.mainImg === "string" ? (
-                        <div className="relative">
-                          <img
-                            src={values.mainImg}
-                            alt="preview"
-                            className="h-24 w-24 object-cover rounded border"
-                          />
-                          <button
-                            type="button"
-                            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition"
-                            onClick={() => {
-                              setFieldValue("mainImg", "");
-                              setEditMainImg("");
-                            }}
-                            title={t("products.removeImage")}
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : editMainImg ? (
-                        // Show existing image during edit
-                        <div className="relative">
-                          <img
-                            src={editMainImg}
-                            alt="main"
-                            className="h-24 w-24 object-cover rounded border"
-                          />
-                          <button
-                            type="button"
-                            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition"
-                            onClick={() => setEditMainImg("")}
-                            title={t("products.removeImage")}
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : imageUploading ? (
-                        <div className="text-center text-gray-500">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100 mx-auto mb-2"></div>
-                          <p className="text-sm">{t("products.uploading")}</p>
-                        </div>
-                      ) : (
-                        <div className="text-center text-gray-500">
-                          <p className="text-sm">
-                            {t("products.noImageSelected")}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Category and Status */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label
-                    htmlFor="categoryId"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    {t("products.productCategory")}
-                  </Label>
-                  <Select
-                    value={values.categoryId}
-                    onValueChange={(v) => setFieldValue("categoryId", v)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("products.selectCategory")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categoryList &&
-                        categoryList?.data
-                          ?.filter((cat) => cat.isProductHolder === true)
-                          .map((cat) => (
-                            <SelectItem key={cat.id} value={String(cat.id)}>
-                              {cat.name?.[i18n.language] ||
-                                cat.name?.az ||
-                                cat.name?.en ||
-                                cat.title?.[i18n.language] ||
-                                cat.title?.az ||
-                                cat.title}
-                            </SelectItem>
-                          ))}
-                    </SelectContent>
-                  </Select>
-                  <ErrorMessage
-                    name="categoryId"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <Label className="text-sm font-medium">
-                    {t("products.productStatus")}
-                  </Label>
-                  <div className="flex items-center space-x-3 pt-2">
-                    <Switch
-                      id="isActive"
-                      checked={values.isActive}
-                      onCheckedChange={(checked) =>
-                        setFieldValue("isActive", checked)
-                      }
-                    />
-                    <Label htmlFor="isActive" className="text-sm">
-                      {values.isActive
-                        ? t("common.active")
-                        : t("common.inactive")}
-                    </Label>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    {t("products.activeProductHint")}
-                  </p>
-                </div>
-              </div>
-
-              {/* Form Actions */}
-              <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={onClose}
-                  disabled={isSubmitting || imageUploading}
-                  className="px-6 py-2"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute -top-2 -right-2 w-6 h-6 p-0 z-10"
+                  onClick={() => removeImage(setFieldValue)}
                 >
-                  {t("common.cancel")}
-                </Button>
-                <Button
-                  type="submit"
-                  className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))] px-6 py-2"
-                  disabled={isSubmitting || imageUploading}
-                >
-                  {isSubmitting
-                    ? editProduct
-                      ? t("products.updating")
-                      : t("products.creating")
-                    : editProduct
-                    ? t("common.save")
-                    : t("common.add")}
+                  <X size={12} />
                 </Button>
               </div>
-            </Form>
-          )}
-        </Formik>
-      </DialogContent>
-    </Dialog>
+            )}
+
+            {/* Upload Button */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleImageUpload(file, setFieldValue);
+                  }
+                }}
+                className="hidden"
+                id="image-upload"
+                disabled={imageUploading}
+              />
+              <label
+                htmlFor="image-upload"
+                className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors w-full sm:w-auto justify-center"
+              >
+                <Upload size={16} />
+                {imageUploading ? t('common.uploading') : t('common.uploadImage')}
+              </label>
+            </div>
+
+            {/* Hidden input for form value */}
+            <input
+              type="hidden"
+              name="mainImg"
+              value={uploadedImageUrl}
+            />
+          </div>
+
+          {/* Active Status */}
+          <SwitchField
+            name="isActive"
+            label={t("products.productStatus")}
+            description={t("products.activeProductHint")}
+            setFieldValue={setFieldValue}
+            values={values}
+          />
+        </div>
+      )}
+    </BaseForm>
   );
 };
 

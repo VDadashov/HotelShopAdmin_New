@@ -1,41 +1,61 @@
 import * as React from "react";
-import { useState, useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useGet } from "@/utils/hooks/useCustomQuery";
-import { usePost, useUpdate, useDelete } from "@/utils/hooks/useCustomMutation";
+import { usePost, useUpdate, useDelete, usePatch } from "@/utils/hooks/useCustomMutation";
+import { useDebounce } from "@/utils/hooks";
 import { ENDPOINTS } from "@/utils/constants/Endpoints";
 
-// Import components from new location
+// Import components
 import BrandForm from "@/components/Brands/BrandForm";
 import BrandViewModal from "@/components/Brands/BrandViewModal";
 import BrandDeleteModal from "@/components/Brands/BrandDeleteModal";
 import BrandTable from "@/components/Brands/BrandTable";
 
 export default function Brand() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // State management
   const [showCreate, setShowCreate] = useState(false);
-  const [editbrand, setEditbrand] = useState(null);
-  const [viewbrand, setViewbrand] = useState(null);
-  const [deletebrand, setDeletebrand] = useState(null);
+  const [editBrand, setEditBrand] = useState(null);
+  const [viewBrand, setViewBrand] = useState(null);
+  const [deleteBrand, setDeleteBrand] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [filters, setFilters] = useState({
+    isActive: null,
+    page: 1,
+    pageSize: 10
+  });
+
+  // Debounced search value (300ms delay)
+  const debouncedSearchValue = useDebounce(searchValue, 300);
 
   // API hooks
-  const { data: brandList = [], refetch } = useGet(
-    "brand",
-    `${ENDPOINTS.brand}?allLanguages=true`
-  );
+  const apiUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    
+    if (debouncedSearchValue.trim()) {
+      params.append('search', debouncedSearchValue.trim());
+    }
+    
+    if (filters.isActive !== null) {
+      params.append('isActive', filters.isActive);
+    }
+    
+    params.append('page', filters.page);
+    params.append('limit', filters.pageSize);
+    
+    return `${ENDPOINTS.brand}?${params.toString()}`;
+  }, [debouncedSearchValue, filters]);
 
-  const createbrand = usePost("brand", ENDPOINTS.brand);
-  const updatebrand = useUpdate("brand", ENDPOINTS.brand, editbrand?.id);
-  const deletebrandMutation = useDelete(
-    "brand",
-    ENDPOINTS.brand,
-    deletebrand?.id
-  );
+  const { data: brandList = [], isLoading, refetch } = useGet("brands", apiUrl, i18n.language);
+
+  const createBrand = usePost("brands", ENDPOINTS.brand);
+  const updateBrand = usePatch("brands", ENDPOINTS.brand, editBrand?.id);
+  const deleteBrandMutation = useDelete("brands", ENDPOINTS.brand, deleteBrand?.id);
 
   const { data: categoryList = [] } = useGet(
     "categories",
@@ -48,95 +68,63 @@ export default function Brand() {
 
     if (Array.isArray(brandList)) {
       rawData = brandList;
-    } else if (
-      brandList &&
-      typeof brandList === "object" &&
-      Array.isArray(brandList.data)
-    ) {
+    } else if (brandList && typeof brandList === "object" && Array.isArray(brandList.data)) {
       rawData = brandList.data;
-    } else if (
-      brandList &&
-      typeof brandList === "object" &&
-      Array.isArray(brandList.items)
-    ) {
+    } else if (brandList && typeof brandList === "object" && Array.isArray(brandList.items)) {
       rawData = brandList.items;
     }
 
     return rawData.map((item) => {
-      let titleText = "";
-      if (typeof item.title === "object" && item.title !== null) {
-        titleText = Object.values(item.title).filter(Boolean).join(" ");
-      } else if (typeof item.title === "string") {
-        titleText = item.title;
-      }
-
-      // Extract description text for search
-      let descriptionText = "";
-      if (typeof item.description === "object" && item.description !== null) {
-        descriptionText = Object.values(item.description)
-          .filter(Boolean)
-          .join(" ");
-      } else if (typeof item.description === "string") {
-        descriptionText = item.description;
-      }
-
-      // Extract categories text for search
-      let categoriesText = "";
-      if (Array.isArray(item.categories)) {
-        categoriesText = item.categories
-          .map((cat) => {
-            if (typeof cat.title === "object" && cat.title !== null) {
-              return Object.values(cat.title).filter(Boolean).join(" ");
-            } else if (typeof cat.title === "string") {
-              return cat.title;
-            }
-            return "";
-          })
-          .filter(Boolean)
-          .join(" ");
+      // Extract name text for search
+      let nameText = "";
+      if (item.name && typeof item.name === "object") {
+        nameText = Object.values(item.name).join(" ");
       }
 
       return {
         ...item,
-        searchableText: [titleText, descriptionText, categoriesText]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase(),
+        searchableName: nameText,
+        searchText: nameText.toLowerCase(),
       };
     });
   }, [brandList]);
 
   // Event handlers
   const handleEdit = (brand) => {
-    setEditbrand(brand);
+    setEditBrand(brand);
     setShowCreate(true);
   };
 
   const handleFormSubmit = (formData, { setSubmitting, resetForm }) => {
-    if (editbrand) {
-      updatebrand.mutate(formData, {
+    console.log('Brand/index - handleFormSubmit called with formData:', formData);
+    console.log('Brand/index - editBrand:', editBrand);
+    
+    if (editBrand) {
+      console.log('Brand/index - Updating brand...');
+      updateBrand.mutate(formData, {
         onSuccess: () => {
-          toast.success(t("brands.brandUpdated"));
+          toast.success(t('brands.brandUpdated'));
           setShowCreate(false);
-          setEditbrand(null);
+          setEditBrand(null);
           resetForm();
           refetch();
         },
         onError: (error) => {
-          toast.error(error?.message || t("errors.generalError"));
+          toast.error(error?.message || t('common.error'));
         },
         onSettled: () => setSubmitting(false),
       });
     } else {
-      createbrand.mutate(formData, {
+      console.log('Brand/index - Creating brand...');
+      createBrand.mutate(formData, {
         onSuccess: () => {
-          toast.success(t("brands.brandAdded"));
+          toast.success(t('brands.brandAdded'));
           setShowCreate(false);
           resetForm();
           refetch();
         },
         onError: (error) => {
-          toast.error(error?.message || t("errors.generalError"));
+          toast.error(error?.message || t('common.error'));
         },
         onSettled: () => setSubmitting(false),
       });
@@ -144,75 +132,78 @@ export default function Brand() {
   };
 
   const handleDeleteConfirm = () => {
-    if (!deletebrand || !deletebrand.id) return;
+    if (!deleteBrand || !deleteBrand.id) return;
 
-    deletebrandMutation.mutate(undefined, {
+    deleteBrandMutation.mutate(undefined, {
       onSuccess: () => {
-        toast.success(t("brands.brandDeleted"));
-        setDeletebrand(null);
+        toast.success(t('brands.brandDeleted'));
+        setDeleteBrand(null);
         refetch();
       },
       onError: (error) => {
-        toast.error(error?.message || t("errors.generalError"));
+        toast.error(error?.message || t('common.error'));
       },
     });
   };
 
   const handleFormClose = () => {
     setShowCreate(false);
-    setEditbrand(null);
+    setEditBrand(null);
   };
 
   return (
     <div className="w-full mx-auto py-10 px-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold">{t("brands.title")}</h1>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold">{t('brands.title')}</h1>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button
             onClick={() => {
               setShowCreate(true);
-              setEditbrand(null);
+              setEditBrand(null);
             }}
-            className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))]"
+            className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))] w-full sm:w-auto"
           >
-            {t("brands.addBrand")}
+            {t('brands.addBrand')}
           </Button>
         </div>
       </div>
 
-      {/* brand Form Modal */}
+      {/* Brand Form Modal */}
       <BrandForm
         isOpen={showCreate}
         onClose={handleFormClose}
-        editbrand={editbrand}
+        editBrand={editBrand}
         onSubmit={handleFormSubmit}
-        isSubmitting={createbrand.isPending || updatebrand.isPending}
-        categoryList={categoryList}
+        isSubmitting={createBrand.isPending || updateBrand.isPending}
       />
 
       {/* Delete Confirmation Modal */}
       <BrandDeleteModal
-        brand={deletebrand}
-        isOpen={!!deletebrand}
-        onClose={() => setDeletebrand(null)}
+        brand={deleteBrand}
+        isOpen={!!deleteBrand}
+        onClose={() => setDeleteBrand(null)}
         onConfirm={handleDeleteConfirm}
-        isDeleting={deletebrandMutation.isPending}
+        isDeleting={deleteBrandMutation.isPending}
       />
 
-      {/* View brand Modal */}
+      {/* View Brand Modal */}
       <BrandViewModal
-        brand={viewbrand}
-        isOpen={!!viewbrand}
-        onClose={() => setViewbrand(null)}
+        brand={viewBrand}
+        isOpen={!!viewBrand}
+        onClose={() => setViewBrand(null)}
       />
 
-      {/* brand Table */}
+      {/* Brand Table */}
       <BrandTable
         data={tableData}
-        onView={setViewbrand}
+        onView={setViewBrand}
         onEdit={handleEdit}
-        onDelete={setDeletebrand}
+        onDelete={setDeleteBrand}
+        onSearch={setSearchValue}
+        searchValue={searchValue}
+        onFiltersChange={setFilters}
+        filters={filters}
       />
 
       {/* Toast notifications */}
@@ -221,8 +212,8 @@ export default function Brand() {
         toastOptions={{
           classNames: {
             success: "!bg-green-500 !text-white",
-            error: "!bg-red-500 !text-white",
-          },
+            error: "!bg-red-500 !text-white"
+          }
         }}
       />
     </div>

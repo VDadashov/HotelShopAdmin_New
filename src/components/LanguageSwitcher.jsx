@@ -17,6 +17,9 @@ const LanguageSwitcher = () => {
 
   const handleLanguageChange = (languageCode) => {
     i18n.changeLanguage(languageCode);
+    // localStorage-ə də set et ki, axiosInstance istifadə edə bilsin
+    localStorage.setItem('lang', languageCode);
+    localStorage.setItem('i18nextLng', languageCode);
   };
 
   return (
