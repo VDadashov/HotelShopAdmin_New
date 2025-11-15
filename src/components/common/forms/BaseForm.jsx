@@ -25,7 +25,6 @@ const BaseForm = ({
   const { t } = useTranslation();
 
   const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    console.log('BaseForm - handleSubmit called with values:', values);
     onSubmit(values, { setSubmitting, resetForm });
   };
 

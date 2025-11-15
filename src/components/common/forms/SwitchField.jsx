@@ -10,23 +10,13 @@ const SwitchField = ({
   setFieldValue,
   values,
 }) => {
-  console.log('SwitchField - name:', name);
-  console.log('SwitchField - values:', values);
-  console.log('SwitchField - values[name]:', values?.[name]);
   
   // Ensure values is not undefined and get the current value
   const safeValues = values || {};
   const currentValue = safeValues[name];
   
-  console.log('SwitchField - currentValue:', currentValue);
-  console.log('SwitchField - typeof currentValue:', typeof currentValue);
   
   const handleChange = (checked) => {
-    console.log('SwitchField - onCheckedChange:', checked);
-    console.log('SwitchField - setFieldValue function:', setFieldValue);
-    console.log('SwitchField - name:', name);
-    
-    // Ensure setFieldValue is available
     if (setFieldValue && typeof setFieldValue === 'function') {
       try {
         setFieldValue(name, checked);

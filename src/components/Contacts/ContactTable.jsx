@@ -39,9 +39,7 @@ export default function ContactTable({
 
   const columns = [
     { accessorKey: "name", header: t('contacts.contactName') },
-    { accessorKey: "email", header: t('contacts.contactEmail') },
-    { accessorKey: "phone", header: t('contacts.contactPhone') },
-    { accessorKey: "subject", header: t('contacts.contactSubject') },
+    { accessorKey: "message", header: t('contacts.contactMessage') },
     {
       accessorKey: "isRead",
       header: t('common.read') + "?",
@@ -68,7 +66,7 @@ export default function ContactTable({
     },
     { 
       accessorKey: "createdAt", 
-      header: t('common.createdAt'), 
+      header: t('contacts.sendDate'), 
       cell: ({ row }) => new Date(row.original.createdAt).toLocaleString() 
     },
     {

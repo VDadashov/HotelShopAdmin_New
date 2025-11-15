@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import { useGet } from "@/utils/hooks/useCustomQuery";
@@ -30,10 +29,6 @@ const ProductForm = ({
   const { data: editProductResponse } = useGet("editProduct", detailUrl, i18n.language);
   const displayEditProduct = editProductResponse?.data || editProduct;
 
-  console.log('ProductForm - editProduct:', editProduct);
-  console.log('ProductForm - editProductResponse:', editProductResponse);
-  console.log('ProductForm - displayEditProduct:', displayEditProduct);
-
   const [editMainImg, setEditMainImg] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
@@ -62,6 +57,8 @@ const ProductForm = ({
           'Content-Type': 'multipart/form-data',
         },
       });
+
+      console.log('Image upload response:', response);
 
       if (response.data?.media?.url) {
         const imageUrl = response.data.media.url;

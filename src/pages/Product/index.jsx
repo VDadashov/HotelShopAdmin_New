@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useGet } from "@/utils/hooks/useCustomQuery";
-import { usePost, useUpdate, useDelete, usePatch } from "@/utils/hooks/useCustomMutation";
+import { usePost, useDelete, usePatch } from "@/utils/hooks/useCustomMutation";
 import { useDebounce } from "@/utils/hooks";
 import { ENDPOINTS } from "@/utils/constants/Endpoints";
 

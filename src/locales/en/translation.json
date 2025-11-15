@@ -239,7 +239,12 @@
     "noContacts": "No contacts found",
     "contactAdded": "Contact added successfully",
     "contactUpdated": "Contact updated successfully",
-    "contactDeleted": "Contact deleted successfully"
+    "contactDeleted": "Contact deleted successfully",
+    "sendDate": "Send Date",
+    "status": "Status",
+    "messageRead": "Message read",
+    "contactInformation": "Contact Information",
+    "details": "Details"
   },
   "gallery": {
     "title": "Gallery",

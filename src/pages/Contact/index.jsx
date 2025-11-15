@@ -24,18 +24,21 @@ export default function Contact() {
         <h1 className="text-xl sm:text-2xl font-bold">{t('contacts.title')}</h1>
       </div>
 
-      {/* Components */}
+      {/* View Modal */}
       <ContactViewModal
-        viewContact={viewContact}
-        setViewContact={setViewContact}
+        contact={viewContact}
+        isOpen={!!viewContact}
+        onClose={() => setViewContact(null)}
       />
 
+      {/* Delete Modal */}
       <ContactDeleteModal
         deleteContact={deleteContact}
         setDeleteContact={setDeleteContact}
         refetch={refetch}
       />
 
+      {/* Table */}
       <ContactTable
         contactList={contactList}
         setViewContact={setViewContact}

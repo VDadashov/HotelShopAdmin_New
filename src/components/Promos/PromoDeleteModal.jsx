@@ -1,35 +1,28 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import BaseDeleteModal from "@/components/common/modals/BaseDeleteModal";
 
 const PromoDeleteModal = ({ 
+  promo, 
   isOpen, 
   onClose, 
   onConfirm, 
-  promo,
   isDeleting 
 }) => {
   const { t } = useTranslation();
 
-  const getLanguageName = (multilingual) => {
-    if (!multilingual) return "";
-    return (
-      multilingual.az ||
-      multilingual.en ||
-      multilingual.ru ||
-      ""
-    );
-  };
-
   return (
     <BaseDeleteModal
+      data={promo}
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
       isDeleting={isDeleting}
-      title={t("promos.delete")}
-      message={t("promos.deleteConfirm")}
-      itemName={getLanguageName(promo?.title) || `Promo #${promo?.id}`}
+      titleKey="promos"
+      getDisplayName={(promo) => {
+        if (!promo) return "";
+        return promo.title?.az || promo.title?.en || promo.title?.ru || `Promo ${promo.id}`;
+      }}
     />
   );
 };

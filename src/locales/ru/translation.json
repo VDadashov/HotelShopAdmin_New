@@ -239,7 +239,12 @@
     "noContacts": "Контакты не найдены",
     "contactAdded": "Контакт успешно добавлен",
     "contactUpdated": "Контакт успешно обновлен",
-    "contactDeleted": "Контакт успешно удален"
+    "contactDeleted": "Контакт успешно удален",
+    "sendDate": "Дата отправки",
+    "status": "Статус",
+    "messageRead": "Сообщение прочитано",
+    "contactInformation": "Контактная Информация",
+    "details": "Детали"
   },
   "gallery": {
     "title": "Галерея",

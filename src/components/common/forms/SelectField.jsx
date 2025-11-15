@@ -25,11 +25,6 @@ const SelectField = ({
   const { i18n } = useTranslation();
   const currentValue = values[name] ? values[name].toString() : "none";
 
-  console.log('SelectField - name:', name);
-  console.log('SelectField - values:', values);
-  console.log('SelectField - values[name]:', values[name]);
-  console.log('SelectField - currentValue:', currentValue);
-
   // Get multilingual text based on current language
   const getMultilingualText = (multilingualObj) => {
     if (!multilingualObj || typeof multilingualObj !== "object") return "";

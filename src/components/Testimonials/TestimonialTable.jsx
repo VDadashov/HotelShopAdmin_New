@@ -89,12 +89,10 @@ const TestimonialTable = ({
         accessorKey: "message",
         header: t("testimonials.message"),
         cell: ({ row }) => (
-          <div className="max-w-xs">
-            <MultilingualCell 
-              value={row.original.message} 
-              fallback={t("testimonials.noMessage")}
-              className="text-sm line-clamp-3"
-            />
+          <div className="max-w-[400px]">
+            <div className="text-sm text-gray-900 dark:text-gray-100 whitespace-normal break-words">
+              {row.original.message?.az || row.original.message?.en || row.original.message?.ru || t("testimonials.noMessage")}
+            </div>
           </div>
         ),
       },

@@ -224,7 +224,7 @@
     "add": "Əlaqə Əlavə Et",
     "addContact": "Əlaqə Əlavə Et",
     "editContact": "Əlaqəni Redaktə Et",
-    "contactName": "Əlaqə Adı",
+    "contactName": "Adı",
     "contactEmail": "Əlaqə E-poçtu",
     "contactPhone": "Əlaqə Telefonu",
     "contactMessage": "Əlaqə Mesajı",
@@ -239,7 +239,12 @@
     "noContacts": "Əlaqə tapılmadı",
     "contactAdded": "Əlaqə uğurla əlavə edildi",
     "contactUpdated": "Əlaqə uğurla yeniləndi",
-    "contactDeleted": "Əlaqə uğurla silindi"
+    "contactDeleted": "Əlaqə uğurla silindi",
+    "sendDate": "Göndərilmə Tarixi",
+    "status": "Status",
+    "messageRead": "Mesaj oxunub",
+    "contactInformation": "Əlaqə Məlumatları",
+    "details": "Detallar"
   },
   "gallery": {
     "title": "Qalereya",
