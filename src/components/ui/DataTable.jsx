@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter } from "lucide-react";
-import { ArrowUpDown, Table as TableIcon } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTranslation } from "react-i18next";
 
@@ -64,8 +64,10 @@ export function DataTable({
   onSearchChange,
   onFiltersChange,
   filters,
+  pagination,
   categories = [],
-  products = []
+  products = [],
+  onPaginationChange
 }) {
   const { t, i18n } = useTranslation();
   const [sorting, setSorting] = React.useState([]);
@@ -92,6 +94,8 @@ export function DataTable({
   const table = useReactTable({
     data,
     columns,
+    manualPagination: true,
+    pageCount: pagination?.totalPages ?? -1,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
@@ -107,15 +111,15 @@ export function DataTable({
       globalFilter,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageIndex: (pagination?.currentPage ?? 1) - 1,
+        pageSize: pagination?.limit ?? 10,
+      },
     },
     filterFns: filterFn ? { custom: filterFn } : undefined,
     globalFilterFn: filterFn ? filterFn : undefined,
   });
 
-  // Debug: Log table data
-  console.log("DataTable - Raw data:", data);
-  console.log("DataTable - Table rows:", table.getRowModel().rows);
-  console.log("DataTable - Filtered rows:", table.getFilteredRowModel().rows);
 
   return (
     <div className="w-full">
@@ -309,13 +313,17 @@ export function DataTable({
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">{t('table.rowsPerPage')}</p>
             <Select
-              value={`${table.getState().pagination.pageSize}`}
+              value={`${pagination?.limit ?? 10}`}
               onValueChange={(value) => {
-                table.setPageSize(Number(value))
+                onPaginationChange?.({
+                  ...pagination,
+                  limit: Number(value),
+                  currentPage: 1
+                });
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={table.getState().pagination.pageSize} />
+                <SelectValue placeholder={pagination?.limit ?? 10} />
               </SelectTrigger>
               <SelectContent side="top">
                 {[5, 10, 20, 30, 40, 50].map((pageSize) => (
@@ -449,51 +457,59 @@ export function DataTable({
         </Table>
       </div>
       </div>
-      <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2 py-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between py-4 gap-4">
+        {/* Sol tərəf - Items sayı */}
+        {pagination && (
+          <div className="text-sm text-muted-foreground">
+            {t('table.showing')} {((pagination.currentPage - 1) * pagination.limit) + 1} - {Math.min(pagination.currentPage * pagination.limit, pagination.total)} {t('table.of')} {pagination.total}
+          </div>
+        )}
+        
+        {/* Sağ tərəf - Pagination */}
         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6 lg:space-x-8">
           <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            {t('table.page')} {table.getState().pagination.pageIndex + 1} {t('table.of')} {table.getPageCount()}
+            {t('table.page')} {pagination?.currentPage ?? 1} {t('table.of')} {pagination?.totalPages ?? 1}
           </div>
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => onPaginationChange?.({...pagination, currentPage: 1})}
+              disabled={pagination?.currentPage === 1}
             >
               <span className="sr-only">{t('table.goToFirstPage')}</span>
               <ChevronsLeft className="h-4 w-4" />
             </Button>
-        <Button
-          variant="outline"
+            <Button
+              variant="outline"
               className="h-8 w-8 p-0"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
+              onClick={() => onPaginationChange?.({...pagination, currentPage: pagination.currentPage - 1})}
+              disabled={pagination?.currentPage === 1}
+            >
               <span className="sr-only">{t('table.goToPreviousPage')}</span>
               <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
+            </Button>
+            <Button
+              variant="outline"
               className="h-8 w-8 p-0"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
+              onClick={() => onPaginationChange?.({...pagination, currentPage: pagination.currentPage + 1})}
+              disabled={pagination?.currentPage >= pagination?.totalPages}
+            >
               <span className="sr-only">{t('table.goToNextPage')}</span>
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
+              onClick={() => onPaginationChange?.({...pagination, currentPage: pagination.totalPages})}
+              disabled={pagination?.currentPage >= pagination?.totalPages}
             >
               <span className="sr-only">{t('table.goToLastPage')}</span>
               <ChevronsRight className="h-4 w-4" />
-        </Button>
+            </Button>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

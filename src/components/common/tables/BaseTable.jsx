@@ -6,9 +6,6 @@ import { customFilter } from "@/components/ui/DataTable";
 const BaseTable = ({
   data,
   columns,
-  onView,
-  onEdit,
-  onDelete,
   titleKey,
   searchPlaceholder,
   filterKey = "custom",
@@ -19,8 +16,10 @@ const BaseTable = ({
   onSearchChange,
   onFiltersChange,
   filters,
+  pagination,
   categories = [],
-  products = []
+  products = [],
+  onPaginationChange
 }) => {
   const { t } = useTranslation();
 
@@ -37,8 +36,10 @@ const BaseTable = ({
       onSearchChange={onSearchChange}
       onFiltersChange={onFiltersChange}
       filters={filters}
+      pagination={pagination}
       categories={categories}
       products={products}
+      onPaginationChange={onPaginationChange}
     />
   );
 };

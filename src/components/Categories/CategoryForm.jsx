@@ -20,14 +20,11 @@ const CategoryForm = ({
 }) => {
   const { t, i18n } = useTranslation();
 
-  // Edit zamanı detail data çək (allLanguages=true ilə)
   const detailUrl = editCategory ? `${ENDPOINTS.categories}/${editCategory.id}?allLanguages=true` : null;
   const { data: editCategoryResponse, isLoading: isLoadingEdit } = useGet("editCategoryDetail", detailUrl, i18n.language);
 
-  // API response-dan data-nı çıxar
   const editCategoryDetail = editCategoryResponse?.data;
 
-  // Display üçün detail data istifadə et, əgər yoxdursa editCategory istifadə et
   const displayEditCategory = editCategoryDetail || editCategory;
 
   const initialValues = displayEditCategory
@@ -65,7 +62,6 @@ const CategoryForm = ({
     onSubmit(cleanValues, { setSubmitting, resetForm });
   };
 
-  // Filter categories for parent selection (exclude current category if editing)
   const availableParentCategories = categories.filter(
     (cat) => !displayEditCategory || cat.id !== displayEditCategory?.id
   );
@@ -83,14 +79,12 @@ const CategoryForm = ({
     >
       {({ values, setFieldValue }) => (
         <>
-          {/* Category Names */}
           <MultilingualField
             name="name"
             label={t("categories.categoryName")}
             placeholder={t("categories.categoryNamePlaceholder")}
           />
 
-          {/* Index Field */}
           <BasicField
             name="index"
             label={t("categories.index")}
@@ -99,7 +93,6 @@ const CategoryForm = ({
             min="0"
           />
 
-          {/* Parent Category */}
           <SelectField
             name="parentId"
             label={t("categories.parentCategory")}
@@ -112,7 +105,6 @@ const CategoryForm = ({
             emptyOption={t("categories.noParent")}
           />
 
-          {/* Switches */}
           <div className="space-y-4">
             <SwitchField
               name="isActive"

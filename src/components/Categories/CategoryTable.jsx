@@ -6,30 +6,6 @@ import MultilingualCell from "@/components/common/tables/MultilingualCell";
 import StatusCell from "@/components/common/tables/StatusCell";
 import { FolderTree, Tag } from "lucide-react";
 
-// Category-specific filter function
-const categoryFilter = (row, columnId, value) => {
-  const item = row.original;
-  const searchTerm = value.toLowerCase();
-  
-  // Name field-da axtar (multilingual)
-  const nameMatch = item.name && typeof item.name === 'object' && Object.values(item.name).some(val =>
-    val && val.toLowerCase().includes(searchTerm)
-  );
-  
-  // Parent name-də axtar (əgər varsa)
-  const parentMatch = item.parent && item.parent.name && typeof item.parent.name === 'object' && Object.values(item.parent.name).some(val =>
-    val && val.toLowerCase().includes(searchTerm)
-  );
-  
-  // Index-də axtar
-  const indexMatch = item.index && item.index.toString().includes(searchTerm);
-  
-  // Level-də axtar
-  const levelMatch = item.level && item.level.toString().includes(searchTerm);
-  
-  return nameMatch || parentMatch || indexMatch || levelMatch;
-};
-
 const CategoryTable = ({ 
   data, 
   onView, 
@@ -38,11 +14,12 @@ const CategoryTable = ({
   onSearch, 
   searchValue, 
   onFiltersChange, 
-  filters 
+  filters,
+  pagination,
+  onPaginationChange
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
-  // Debounced search handler
   const handleSearchChange = (value) => {
     console.log('CategoryTable handleSearchChange:', value);
     if (onSearch) {
@@ -181,6 +158,8 @@ const CategoryTable = ({
       onSearchChange={handleSearchChange}
       onFiltersChange={onFiltersChange}
       filters={filters}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
     />
   );
 };

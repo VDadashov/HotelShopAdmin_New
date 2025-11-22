@@ -8,8 +8,6 @@ import { useGet } from "@/utils/hooks/useCustomQuery";
 import { usePost, useUpdate, useDelete } from "@/utils/hooks/useCustomMutation";
 import { useDebounce } from "@/utils/hooks";
 import { ENDPOINTS } from "@/utils/constants/Endpoints";
-
-// Import components
 import CategoryForm from "@/components/Categories/CategoryForm";
 import CategoryViewModal from "@/components/Categories/CategoryViewModal";
 import CategoryDeleteModal from "@/components/Categories/CategoryDeleteModal";
@@ -27,32 +25,21 @@ export default function Category() {
     level: null,
     parentId: null,
     isActive: null,
-    limit: 10,
-    page: 1
+  });
+  const [pagination, setPagination] = useState({
+    total: 0,
+    totalPages: 1,
+    currentPage: 1,
+    limit: 10
   });
 
-  // Debounced search value (300ms delay)
   const debouncedSearchValue = useDebounce(searchValue, 300);
 
-  // Debug search values
-  useEffect(() => {
-    console.log('Search Value:', searchValue);
-    console.log('Debounced Search Value:', debouncedSearchValue);
-  }, [searchValue, debouncedSearchValue]);
-
-  // API endpoint-i dinamik olaraq qururuq
   const apiUrl = useMemo(() => {
-    console.log('useMemo: Building API URL with debouncedSearchValue:', debouncedSearchValue, 'type:', typeof debouncedSearchValue);
-    console.log('useMemo: debouncedSearchValue.trim():', debouncedSearchValue.trim());
-    console.log('useMemo: debouncedSearchValue.trim() length:', debouncedSearchValue.trim().length);
-    
     const params = new URLSearchParams();
     
     if (debouncedSearchValue.trim()) {
-      console.log('useMemo: Adding search parameter:', debouncedSearchValue.trim());
       params.append('search', debouncedSearchValue.trim());
-    } else {
-      console.log('useMemo: NOT adding search parameter because debouncedSearchValue is empty');
     }
     
     if (filters.level !== null) {
@@ -67,31 +54,40 @@ export default function Category() {
       params.append('isActive', filters.isActive);
     }
     
-    params.append('limit', filters.limit);
-    params.append('page', filters.page);
+    params.append('limit', pagination.limit);
+    params.append('page', pagination.currentPage);
     
     const url = `${ENDPOINTS.categories}?${params.toString()}`;
-    console.log('useMemo: Generated API URL:', url);
+    console.log('Generated API URL:', url);
     return url;
-  }, [debouncedSearchValue, filters]);
+  }, [debouncedSearchValue, filters, pagination]);
 
-  const { data: categoryList = [], isLoading, refetch } = useGet("categories", apiUrl, i18n.language);
+  const { data: categoryResponse, isLoading, refetch } = useGet("categories", apiUrl, i18n.language);
   const createCategory = usePost("categories", ENDPOINTS.categories);
   const updateCategory = useUpdate("categories", ENDPOINTS.categories, editCategory?.id);
   const deleteCategoryMutation = useDelete("categories", ENDPOINTS.categories, deleteCategory?.id);
 
-  console.log(categoryList);
-  
+  // Update pagination when API response changes
+  useEffect(() => {
+    if (categoryResponse?.pagination) {
+      setPagination({
+        total: categoryResponse.pagination.totalItems || 0,
+        totalPages: categoryResponse.pagination.totalPages || 1,
+        currentPage: categoryResponse.pagination.page || 1,
+        limit: categoryResponse.pagination.limit || 10
+      });
+    }
+  }, [categoryResponse]);
 
   const tableData = useMemo(() => {
-    let rawData = Array.isArray(categoryList) ? categoryList : Array.isArray(categoryList?.data) ? categoryList.data : [];
+    const rawData = categoryResponse?.data || [];
     
     return rawData.map(item => ({
       ...item,
       searchableTitle: item.name ? Object.values(item.name).join(' ') : '',
       searchText: item.name ? Object.values(item.name).join(' ').toLowerCase() : '',
     }));
-  }, [categoryList]);
+  }, [categoryResponse]);
 
   const handleEdit = (category) => {
     setEditCategory(category);
@@ -127,7 +123,6 @@ export default function Category() {
     }
   };
 
-  // Delete handler
   const handleDelete = () => {
     if (!deleteCategory || !deleteCategory.id) return;
     deleteCategoryMutation.mutate(undefined, {
@@ -187,17 +182,19 @@ export default function Category() {
         isDeleting={deleteCategoryMutation.isPending}
       />
 
-        {/* Category Table */}
-        <CategoryTable
-          data={tableData}
-          onView={setViewCategory}
-          onEdit={handleEdit}
-          onDelete={setDeleteCategory}
-          onSearch={setSearchValue}
-          searchValue={searchValue}
-          onFiltersChange={setFilters}
-          filters={filters}
-        />
+      <CategoryTable
+        data={tableData}
+        pagination={pagination}
+        onView={setViewCategory}
+        onEdit={handleEdit}
+        onDelete={setDeleteCategory}
+        onSearch={setSearchValue}
+        searchValue={searchValue}
+        onFiltersChange={setFilters}
+        filters={filters}
+        isLoading={isLoading}
+        onPaginationChange={setPagination}
+      />
 
       <Toaster
         position="top-right"

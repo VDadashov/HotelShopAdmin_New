@@ -17,13 +17,9 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-    // Accept-Language header-i localStorage-dən götür
     const lang = localStorage.getItem('i18nextLng') || localStorage.getItem('lang') || 'az';
     config.headers['Accept-Language'] = lang;
     
-    // Debug üçün console.log
-    console.log('Accept-Language header:', lang);
-
     return config;
   },
   (error) => {

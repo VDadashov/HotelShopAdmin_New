@@ -7,7 +7,7 @@ export const sectionFieldConfigs = {
         type: "object",
         label: "Logo Information",
         objectFields: [
-          
+
           {
             key: "subtitle",
             type: "text",
@@ -15,7 +15,7 @@ export const sectionFieldConfigs = {
             placeholder: "hotel spa boutique",
             required: false,
           },
-          
+
         ],
       },
       {
@@ -171,9 +171,24 @@ export const sectionFieldConfigs = {
   hero: {
     fields: [
       {
-        key: "isSearchActive",
-        type: "boolean",
-        label: "Enable Search",
+        key: "subtitle",
+        type: "multilingual",
+        label: "Hero Subtitle",
+        placeholder: "ƏLAQƏ SAXLAYIN",
+        required: false,
+      },
+      {
+        key: "title",
+        type: "multilingual",
+        label: "Hero Title",
+        placeholder: "Bizimlə əlaqə qurmaq çox asandır",
+        required: false,
+      },
+      {
+        key: "description",
+        type: "multilingual",
+        label: "Hero Description",
+        placeholder: "Əgər hər hansı bir sualınız varsa birbaşa saytdan bizə ünvanlaya bilərsiniz. Komandamız sizə yardım etməyə həmişə hazırdır.",
         required: false,
       },
     ],
@@ -197,6 +212,115 @@ export const sectionFieldConfigs = {
         key: "Yazi",
         type: "multilingual",
         label: "Section Yazi",
+        required: false,
+      },
+    ],
+  },
+  contact: {
+    fields: [
+      {
+        key: "pageTitle",
+        type: "multilingual",
+        label: "Page Title",
+        placeholder: "Bizimlə əlaqə",
+        required: false,
+      },
+      {
+        key: "pageDescription",
+        type: "multilingual",
+        label: "Page Description",
+        placeholder: "Əgər hər hansı bir sualınız varsa birbaşa saytdan bizə ünvanlaya bilərsiniz.",
+        required: false,
+      },
+      {
+        key: "address",
+        type: "multilingual",
+        label: "Address",
+        placeholder: "Bakı şəhəri, Nərimanov rayonu, H.Əliyev 56",
+        required: false,
+      },
+      {
+        key: "email",
+        type: "text",
+        label: "Email Address",
+        placeholder: "info@hotelshop.az",
+        required: false,
+      },
+      {
+        key: "phone",
+        type: "text",
+        label: "Phone Number",
+        placeholder: "+994 55 555 55 55",
+        required: false,
+      },
+      {
+        key: "formNameLabel",
+        type: "multilingual",
+        label: "Name Field Label",
+        placeholder: "Adınız",
+        required: false,
+      },
+      {
+        key: "formNamePlaceholder",
+        type: "multilingual",
+        label: "Name Field Placeholder",
+        placeholder: "Adınızı daxil edin",
+        required: false,
+      },
+      {
+        key: "formEmailLabel",
+        type: "multilingual",
+        label: "Email Field Label",
+        placeholder: "E-mail",
+        required: false,
+      },
+      {
+        key: "formEmailPlaceholder",
+        type: "multilingual",
+        label: "Email Field Placeholder",
+        placeholder: "Email ünvanınız",
+        required: false,
+      },
+      {
+        key: "formMessageLabel",
+        type: "multilingual",
+        label: "Message Field Label",
+        placeholder: "Mətn",
+        required: false,
+      },
+      {
+        key: "formMessagePlaceholder",
+        type: "multilingual",
+        label: "Message Field Placeholder",
+        placeholder: "Mesajınızı yazın...",
+        required: false,
+      },
+      {
+        key: "submitButtonText",
+        type: "multilingual",
+        label: "Submit Button Text",
+        placeholder: "Göndər",
+        required: false,
+      },
+      {
+        key: "mapIframeUrl",
+        type: "text",
+        label: "Google Maps Iframe URL",
+        placeholder: "https://www.google.com/maps/embed?pb=!1m18!1m12...",
+        required: false,
+      },
+      {
+        key: "workingHours",
+        type: "multilingual",
+        label: "Working Hours",
+        placeholder: "09:00 - 18:00 (B.e - C.a)",
+        required: false,
+      },
+      {
+        key: "contactInfoTitle",
+        type: "multilingual",
+        label: "Contact Info Title",
+        placeholder: "Əlaqə məlumatları",
         required: false,
       },
     ],
