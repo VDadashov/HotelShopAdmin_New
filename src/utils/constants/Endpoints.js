@@ -1,6 +1,6 @@
 
 
-export const MAIN_URL = "https://api.hotelshop.az/api";
+export const MAIN_URL = "http://localhost:3001/api";
 
 export const ENDPOINTS = {
   brand: `${MAIN_URL}/brands`,
@@ -18,6 +18,8 @@ export const ENDPOINTS = {
   promos: `${MAIN_URL}/promos`,
   uploadImage: `${MAIN_URL}/upload/image`,
   uploadVideo: `${MAIN_URL}/upload/video`,
+  uploadPdf: `${MAIN_URL}/upload/pdf`,
+  upload: `${MAIN_URL}/upload`,
 
   // auth
   profile: `${MAIN_URL}/auth/profile`,

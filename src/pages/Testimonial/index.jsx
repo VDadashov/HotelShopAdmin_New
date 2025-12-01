@@ -100,7 +100,6 @@ const Testimonial = () => {
       setIsFormOpen(false);
       refetch();
     } catch (error) {
-      console.error("Form submission error:", error);
       toast.error(error?.message || t("common.error"));
     }
   };
@@ -112,7 +111,6 @@ const Testimonial = () => {
       setIsDeleteOpen(false);
       refetch();
     } catch (error) {
-      console.error("Delete error:", error);
       toast.error(error?.message || t("common.error"));
     }
   };

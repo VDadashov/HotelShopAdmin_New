@@ -6,8 +6,6 @@ export const createMultilingualValidation = (fieldName, titleKey) => {
   
   return Yup.object({
     az: Yup.string().required(t(`${titleKey}.validation.${fieldName}AzRequired`)),
-    en: Yup.string().required(t(`${titleKey}.validation.${fieldName}EnRequired`)),
-    ru: Yup.string().required(t(`${titleKey}.validation.${fieldName}RuRequired`)),
   });
 };
 

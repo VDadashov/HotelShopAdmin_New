@@ -47,10 +47,6 @@ const BaseForm = ({
             validateOnBlur={false}
           >
             {({ isSubmitting: formSubmitting, values, setFieldValue, errors, touched, handleSubmit }) => {
-              console.log('BaseForm - Formik render - values:', values);
-              console.log('BaseForm - Formik render - errors:', errors);
-              console.log('BaseForm - Formik render - touched:', touched);
-              
               // Ensure values is not undefined
               const safeValues = values || {};
               
@@ -78,7 +74,6 @@ const BaseForm = ({
                       className="bg-[rgb(var(--primary-brand))] text-black font-semibold hover:bg-[rgb(var(--primary-brand-hover))]"
                       disabled={isSubmitting}
                       onClick={() => {
-                        console.log('BaseForm - Submit button clicked');
                         handleSubmit(); // Formik's handleSubmit
                       }}
                     >

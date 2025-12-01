@@ -8,9 +8,6 @@ export const usePost = (key, endpoint) => {
     onSuccess: () => {
       queryClient.invalidateQueries([key]); 
     },
-    onError: (error) => {
-      console.error(`Error posting data: ${error.message || error}`);
-    },
   });
 };
 
@@ -20,9 +17,6 @@ export const useUpdate = (key, endpoint, id) => {
     mutationFn: (updatedData) => updateData(endpoint, id, updatedData),
     onSuccess: () => {
       queryClient.invalidateQueries([key]); // array olaraq veriləcək
-    },
-    onError: (error) => {
-      console.error(`Error updating data: ${error.message || error}`);
     },
   });
 };
@@ -34,9 +28,6 @@ export const useDelete = (key, endpoint, id) => {
     onSuccess: () => {
       queryClient.invalidateQueries([key]); // array olaraq veriləcək
     },
-    onError: (error) => {
-      console.error(`Error deleting data: ${error.message || error}`);
-    },
   });
 };
 
@@ -46,9 +37,6 @@ export const usePatch = (key, endpoint, id) => {
     mutationFn: (patchedData) => patchData(endpoint, id, patchedData),
     onSuccess: () => {
       queryClient.invalidateQueries([key]);
-    },
-    onError: (error) => {
-      console.error(`Error patching data: ${error.message || error}`);
     },
   });
 };

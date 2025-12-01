@@ -1,8 +1,8 @@
 
 
 import * as React from "react";
-import { useLocation } from "react-router-dom";
-import { LayoutGrid, Home, Layers, ShoppingCart, Image, Folder, UserCircle2, Briefcase, StickyNote, LayoutPanelTop, MessageSquare, Percent } from "lucide-react";
+import { useLocation, Link } from "react-router-dom";
+import { LayoutGrid, Home, Layers, ShoppingCart, Image, Folder, UserCircle2, Briefcase, StickyNote, LayoutPanelTop, MessageSquare, Percent, ImageIcon } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import {
   Sidebar,
@@ -86,6 +86,11 @@ export function SiderBar({ ...props }) {
             url: "/promo",
             icon: <Percent className="size-4" />,
           },
+          {
+            title: t("upload.title"),
+            url: "/upload",
+            icon: <ImageIcon className="size-4" />,
+          },
           // {
           //   title: t('common.settings'),
           //   url: "/settings",
@@ -134,10 +139,10 @@ export function SiderBar({ ...props }) {
                             : 'hover:bg-[rgb(var(--primary-brand-hover))] hover:text-black'
                         }`}
                       >
-                        <a href={item.url} className="flex items-center w-full">
+                        <Link to={item.url} className="flex items-center w-full">
                           {item.icon}
                           <span className="ml-2">{item.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

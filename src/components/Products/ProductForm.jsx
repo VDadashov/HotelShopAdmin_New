@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import axiosInstance from "@/utils/api/axiosInstance";
 import { toast } from "sonner";
+import FilePicker from "@/components/common/FilePicker";
 
 const ProductForm = ({
   isOpen,
@@ -32,6 +33,7 @@ const ProductForm = ({
   const [editMainImg, setEditMainImg] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  const [showFilePicker, setShowFilePicker] = useState(false);
 
   useEffect(() => {
     if (displayEditProduct) {
@@ -58,8 +60,6 @@ const ProductForm = ({
         },
       });
 
-      console.log('Image upload response:', response);
-
       if (response.data?.media?.url) {
         const imageUrl = response.data.media.url;
         
@@ -71,13 +71,11 @@ const ProductForm = ({
           toast.success(t('common.imageUploaded'));
         };
         img.onerror = () => {
-          console.error('Image validation failed:', imageUrl);
           toast.error(t('common.imageValidationError'));
         };
         img.src = imageUrl;
       }
     } catch (error) {
-      console.error('Image upload error:', error);
       toast.error(t('common.imageUploadError'));
     } finally {
       setImageUploading(false);
@@ -108,8 +106,6 @@ const ProductForm = ({
         mainImg: "",
       };
 
-  console.log('ProductForm - initialValues:', initialValues);
-  console.log('ProductForm - initialValues.categoryId:', initialValues.categoryId);
 
   const validationSchema = Yup.object({
     title: commonValidations.multilingualTitle("products"),
@@ -118,10 +114,7 @@ const ProductForm = ({
     isActive: commonValidations.isActive,
   });
 
-  console.log('ProductForm - validationSchema:', validationSchema);
-
   const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    console.log('ProductForm - handleSubmit called with values:', values);
     const cleanValues = {
       name: values.title, // title -> name
       description: values.description,
@@ -129,7 +122,6 @@ const ProductForm = ({
       isActive: values.isActive,
       mainImg: uploadedImageUrl || values.mainImg || "", // Use uploaded image URL
     };
-    console.log('ProductForm - cleanValues:', cleanValues);
     onSubmit(cleanValues, { setSubmitting, resetForm });
   };
 
@@ -190,7 +182,6 @@ const ProductForm = ({
                   alt="Uploaded"
                   className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg border"
                   onError={(e) => {
-                    console.error('Image load error:', uploadedImageUrl);
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
@@ -215,27 +206,29 @@ const ProductForm = ({
 
             {/* Upload Button */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    handleImageUpload(file, setFieldValue);
-                  }
-                }}
-                className="hidden"
-                id="image-upload"
-                disabled={imageUploading}
-              />
-              <label
-                htmlFor="image-upload"
-                className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors w-full sm:w-auto justify-center"
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowFilePicker(true)}
+                className="flex items-center gap-2 w-full sm:w-auto justify-center"
               >
                 <Upload size={16} />
-                {imageUploading ? t('common.uploading') : t('common.uploadImage')}
-              </label>
+                {t('common.uploadImage')}
+              </Button>
             </div>
+
+            {/* FilePicker Modal */}
+            <FilePicker
+              isOpen={showFilePicker}
+              onClose={() => setShowFilePicker(false)}
+              onSelect={(url) => {
+                setUploadedImageUrl(url);
+                setFieldValue('mainImg', url);
+                setShowFilePicker(false);
+              }}
+              acceptTypes={["image"]}
+              title={t('products.selectProductImage')}
+            />
 
             {/* Hidden input for form value */}
             <input

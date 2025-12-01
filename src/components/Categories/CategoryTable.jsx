@@ -21,7 +21,6 @@ const CategoryTable = ({
   const { t } = useTranslation();
 
   const handleSearchChange = (value) => {
-    console.log('CategoryTable handleSearchChange:', value);
     if (onSearch) {
       onSearch(value);
     }

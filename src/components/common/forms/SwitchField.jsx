@@ -18,14 +18,7 @@ const SwitchField = ({
   
   const handleChange = (checked) => {
     if (setFieldValue && typeof setFieldValue === 'function') {
-      try {
-        setFieldValue(name, checked);
-        console.log('SwitchField - setFieldValue called successfully');
-      } catch (error) {
-        console.error('SwitchField - setFieldValue error:', error);
-      }
-    } else {
-      console.error('SwitchField - setFieldValue is not available or not a function');
+      setFieldValue(name, checked);
     }
   };
   

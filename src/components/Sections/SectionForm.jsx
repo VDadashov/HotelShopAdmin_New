@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import DynamicAdditionalData from "./common/DynamicAdditionalData";
+import FilePicker from "@/components/common/FilePicker";
 
 const SectionForm = ({
   isOpen,
@@ -35,6 +36,7 @@ const SectionForm = ({
   const [mediaPreview, setMediaPreview] = useState(null);
   const [additionalDataMode, setAdditionalDataMode] = useState("input");
   const [dynamicFormData, setDynamicFormData] = useState({});
+  const [showFilePicker, setShowFilePicker] = useState(false);
 
   // Parse additional data when editing
   React.useEffect(() => {
@@ -125,7 +127,6 @@ const SectionForm = ({
     if (!file) return;
 
     if (!uploadMedia) {
-      console.error("uploadMedia function not provided");
       return;
     }
 
@@ -135,7 +136,7 @@ const SectionForm = ({
       setMediaPreview(uploadedMedia);
       setFieldValue("media", uploadedMedia);
     } catch (error) {
-      console.error("File upload failed:", error);
+      // File upload failed
     } finally {
       setUploading(false);
     }
@@ -154,7 +155,6 @@ const SectionForm = ({
         try {
           processedAdditionalData = JSON.parse(values.additionalData);
         } catch (error) {
-          console.error("Invalid JSON in additionalData:", error);
           processedAdditionalData = null;
         }
       }
@@ -456,18 +456,34 @@ const SectionForm = ({
                       ? t("section.selectImage")
                       : t("section.selectVideo")}
                   </Label>
-                  <Input
-                    type="file"
-                    accept={mediaType === "image" ? "image/*" : "video/*"}
-                    onChange={(e) => handleFileUpload(e, setFieldValue)}
-                    disabled={uploading || !uploadMedia}
-                    className="cursor-pointer"
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowFilePicker(true)}
+                    disabled={!uploadMedia}
+                    className="w-full sm:w-auto"
+                  >
+                    {mediaType === "image" ? t("section.selectImage") : t("section.selectVideo")}
+                  </Button>
+                  
+                  {/* FilePicker Modal */}
+                  <FilePicker
+                    isOpen={showFilePicker}
+                    onClose={() => setShowFilePicker(false)}
+                    onSelect={(url) => {
+                      setMediaPreview({
+                        type: mediaType,
+                        url: url
+                      });
+                      setFieldValue('media', {
+                        type: mediaType,
+                        url: url
+                      });
+                      setShowFilePicker(false);
+                    }}
+                    acceptTypes={mediaType === "image" ? ["image"] : ["video"]}
+                    title={mediaType === "image" ? t("section.selectImage") : t("section.selectVideo")}
                   />
-                  {uploading && (
-                    <div className="text-xs text-blue-500 mt-1">
-                      {t("section.uploading")}...
-                    </div>
-                  )}
                 </div>
 
                 {mediaPreview && (

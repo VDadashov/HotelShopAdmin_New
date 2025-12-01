@@ -172,23 +172,46 @@ export function DataTable({
               </Select>
             )}
 
-            {/* Status Filter */}
-            <Select
-              value={filters.isActive !== null ? String(filters.isActive) : "all"}
-              onValueChange={(value) => {
-                const newFilters = { ...filters, isActive: value === "all" ? null : value === "true" };
-                onFiltersChange(newFilters);
-              }}
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder={t('common.status')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('common.all')}</SelectItem>
-                <SelectItem value="true">{t('common.active')}</SelectItem>
-                <SelectItem value="false">{t('common.inactive')}</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Level Filter - Only show if level is in filters */}
+            {filters.hasOwnProperty('level') && (
+              <Select
+                value={filters.level !== null ? String(filters.level) : "all"}
+                onValueChange={(value) => {
+                  const newFilters = { ...filters, level: value === "all" ? null : Number(value) };
+                  onFiltersChange(newFilters);
+                }}
+              >
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder={t('categories.filterByLevel')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('categories.allLevels')}</SelectItem>
+                  <SelectItem value="1">Level 1</SelectItem>
+                  <SelectItem value="2">Level 2</SelectItem>
+                  <SelectItem value="3">Level 3</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* Status Filter - Hide for Upload filters (resourceType without isActive) */}
+            {!(filters.hasOwnProperty('resourceType') && !filters.hasOwnProperty('isActive')) && (
+              <Select
+                value={filters.isActive !== null ? String(filters.isActive) : "all"}
+                onValueChange={(value) => {
+                  const newFilters = { ...filters, isActive: value === "all" ? null : value === "true" };
+                  onFiltersChange(newFilters);
+                }}
+              >
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder={t('common.status')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('common.all')}</SelectItem>
+                  <SelectItem value="true">{t('common.active')}</SelectItem>
+                  <SelectItem value="false">{t('common.inactive')}</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
 
             {/* Product Filter - Only show if products are provided */}
             {products && products.length > 0 && (
@@ -257,6 +280,26 @@ export function DataTable({
                   className="w-[150px]"
                 />
               </div>
+            )}
+
+            {/* Upload Filters - ResourceType only */}
+            {filters.hasOwnProperty('resourceType') && !filters.hasOwnProperty('folder') && (
+              <Select
+                value={filters.resourceType || "image"}
+                onValueChange={(value) => {
+                  const newFilters = { ...filters, resourceType: value };
+                  onFiltersChange(newFilters);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={t('upload.selectResourceType')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="image">{t('upload.image')}</SelectItem>
+                  <SelectItem value="video">{t('upload.video')}</SelectItem>
+                  <SelectItem value="raw">{t('upload.raw')}</SelectItem>
+                </SelectContent>
+              </Select>
             )}
 
             {/* Min Rating Filter - Only show if minRating is in filters */}

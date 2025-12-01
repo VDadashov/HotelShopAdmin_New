@@ -107,26 +107,14 @@ export default function Section() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      console.log(
-        "Uploading file:",
-        file.name,
-        "Type:",
-        type,
-        "URL:",
-        uploadUrl
-      );
-
       const response = await fetch(uploadUrl, {
         method: "POST",
         headers, // Content-Type-ı qoyma, browser avtomatik təyin edəcək
         body: formData,
       });
 
-      console.log("Upload response status:", response.status);
-
       // Response-u oxumaq üçün əvvəlcə text olaraq oxu
       const responseText = await response.text();
-      console.log("Response text:", responseText);
 
       if (!response.ok) {
         // Serverdən gələn xəta mesajını göstər
@@ -150,14 +138,11 @@ export default function Section() {
       try {
         data = JSON.parse(responseText);
       } catch (parseError) {
-        console.error("JSON parse error:", parseError);
         throw new Error("Server invalid response format returned");
       }
 
-      console.log("Upload successful:", data);
       return data.media || data.url || data.path || data; // Müxtəlif response format-larını dəstəklə
     } catch (error) {
-      console.error("Upload error:", error);
 
       // Network error-ları üçün daha anlaşıqlı mesaj
       if (
@@ -175,14 +160,11 @@ export default function Section() {
 
   const handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      console.log("Form submit başladı:", values);
-
       // Media upload məsələsini həll et
       let finalValues = { ...values };
 
       // Əgər media faylı varsa və yüklənməyibsə, əvvəlcə yüklə
       if (values.mediaFile && !values.media) {
-        console.log("Media faylı yüklənir...");
         const uploadedMedia = await uploadMedia(
           values.mediaFile,
           values.mediaType || "image"
@@ -197,20 +179,15 @@ export default function Section() {
         finalValues.media = values.media;
       }
 
-      console.log("Final values hazırlandı:", finalValues);
-
       if (editSection) {
-        console.log("Section update edilir...", editSection.id);
         updateSection.mutate(finalValues, {
-          onSuccess: (response) => {
-            console.log("Update uğurlu:", response);
+          onSuccess: () => {
             toast.success(t("section.sectionUpdated"));
             setShowCreate(false);
             setEditSection(null);
             resetForm();
           },
           onError: (error) => {
-            console.error("Update xətası:", error);
             toast.error(
               error?.response?.data?.message ||
                 error?.message ||
@@ -220,16 +197,13 @@ export default function Section() {
           onSettled: () => setSubmitting(false),
         });
       } else {
-        console.log("Yeni section yaradılır...");
         createSection.mutate(finalValues, {
-          onSuccess: (response) => {
-            console.log("Create uğurlu:", response);
+          onSuccess: () => {
             toast.success(t("section.sectionAdded"));
             setShowCreate(false);
             resetForm();
           },
           onError: (error) => {
-            console.error("Create xətası:", error);
             toast.error(
               error?.response?.data?.message ||
                 error?.message ||
@@ -240,7 +214,6 @@ export default function Section() {
         });
       }
     } catch (error) {
-      console.error("Form submit xətası:", error);
       toast.error(`Error: ${error.message}`);
       setSubmitting(false);
     }

@@ -33,17 +33,6 @@ const CategoryViewModal = ({ category, isOpen, onClose, onEdit }) => {
   // Early return if category is null
   if (!category) return null;
 
-  // Debug subcategory names
-  console.log('CategoryViewModal - category:', category);
-  console.log('CategoryViewModal - detailUrl:', detailUrl);
-  console.log('CategoryViewModal - categoryDetailResponse:', categoryDetailResponse);
-  console.log('CategoryViewModal - categoryDetail:', categoryDetail);
-  console.log('CategoryViewModal - displayCategory:', displayCategory);
-  console.log('CategoryViewModal - children:', displayCategory?.children);
-  if (displayCategory?.children && displayCategory.children.length > 0) {
-    console.log('CategoryViewModal - first child:', displayCategory.children[0]);
-    console.log('CategoryViewModal - first child name:', displayCategory.children[0].name);
-  }
 
   return (
     <BaseViewModal

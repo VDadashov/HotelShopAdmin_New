@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useGet } from "@/utils/hooks/useCustomQuery";
-import { usePost, useUpdate, useDelete, usePatch } from "@/utils/hooks/useCustomMutation";
+import { usePost, useUpdate, useDelete } from "@/utils/hooks/useCustomMutation";
 import { useDebounce } from "@/utils/hooks";
 import { ENDPOINTS } from "@/utils/constants/Endpoints";
 
@@ -54,7 +54,7 @@ export default function Brand() {
   const { data: brandList = [], isLoading, refetch } = useGet("brands", apiUrl, i18n.language);
 
   const createBrand = usePost("brands", ENDPOINTS.brand);
-  const updateBrand = usePatch("brands", ENDPOINTS.brand, editBrand?.id);
+  const updateBrand = useUpdate("brands", ENDPOINTS.brand, editBrand?.id);
   const deleteBrandMutation = useDelete("brands", ENDPOINTS.brand, deleteBrand?.id);
 
   const { data: categoryList = [] } = useGet(
@@ -96,11 +96,7 @@ export default function Brand() {
   };
 
   const handleFormSubmit = (formData, { setSubmitting, resetForm }) => {
-    console.log('Brand/index - handleFormSubmit called with formData:', formData);
-    console.log('Brand/index - editBrand:', editBrand);
-    
     if (editBrand) {
-      console.log('Brand/index - Updating brand...');
       updateBrand.mutate(formData, {
         onSuccess: () => {
           toast.success(t('brands.brandUpdated'));
@@ -115,7 +111,6 @@ export default function Brand() {
         onSettled: () => setSubmitting(false),
       });
     } else {
-      console.log('Brand/index - Creating brand...');
       createBrand.mutate(formData, {
         onSuccess: () => {
           toast.success(t('brands.brandAdded'));

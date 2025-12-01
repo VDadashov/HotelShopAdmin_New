@@ -10,8 +10,6 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { data: products = [] } = useGet("products", ENDPOINTS.products);
-  console.log(products);
-  
   const { data: categories = [] } = useGet("categories", ENDPOINTS.getAllCategories);
   const { data: contacts = [] } = useGet("contacts", ENDPOINTS.contact);
   const { data: brands = [] } = useGet("brands", ENDPOINTS.brand);
@@ -22,14 +20,14 @@ export default function Dashboard() {
 
   // Stat Cards
   const statCards = [
-    { title: t('common.products'), count: products?.data?.length || 0, icon: <Layers className="w-8 h-8 text-pink-500 mb-2" />, path: "/products" },
+    { title: t('common.products'), count: products?.data?.length || 0, icon: <Layers className="w-8 h-8 text-pink-500 mb-2" />, path: "/product" },
     { title: t('common.categories'), count: categories?.data?.length || 0, icon: <Tag className="w-8 h-8 text-yellow-500 mb-2" />, path: "/category" },
     { title: t('common.brands'), count: brands?.data?.length || 0, icon: <Building2 className="w-8 h-8 text-blue-500 mb-2" />, path: "/brand" },
     { title: t('common.testimonials'), count: testimonials?.data?.length || 0, icon: <Star className="w-8 h-8 text-purple-500 mb-2" />, path: "/testimonial" },
     { title: t('common.promos'), count: promos?.data?.length || 0, icon: <Percent className="w-8 h-8 text-red-500 mb-2" />, path: "/promo" },
-    { title: t('common.pages'), count: pages?.data?.length || 0, icon: <FileText className="w-8 h-8 text-green-500 mb-2" />, path: "/pages" },
-    { title: t('common.sections'), count: sections?.data?.length || 0, icon: <Grid3X3 className="w-8 h-8 text-orange-500 mb-2" />, path: "/section" },
-    // { title: t('common.contacts'), count: contacts.length, icon: <Users className="w-8 h-8 text-gray-500 mb-2" />, path: "/contact" },
+    { title: t('common.pages'), count: pages?.length || 0, icon: <FileText className="w-8 h-8 text-green-500 mb-2" />, path: "/page" },
+    { title: t('common.sections'), count: sections?.length || 0, icon: <Grid3X3 className="w-8 h-8 text-orange-500 mb-2" />, path: "/section" },
+    { title: t('common.contacts'), count: contacts?.length, icon: <Users className="w-8 h-8 text-gray-500 mb-2" />, path: "/contact" },
   ];
 
   // Read/Unread breakdown

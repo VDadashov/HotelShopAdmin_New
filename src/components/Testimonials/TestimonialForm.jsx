@@ -64,13 +64,11 @@ const TestimonialForm = ({
           toast.success(t('common.imageUploaded'));
         };
         img.onerror = () => {
-          console.error('Image validation failed:', imageUrl);
           toast.error(t('common.imageValidationError'));
         };
         img.src = imageUrl;
       }
     } catch (error) {
-      console.error('Image upload error:', error);
       toast.error(t('common.imageUploadError'));
     } finally {
       setImageUploading(false);
@@ -209,7 +207,6 @@ const TestimonialForm = ({
                   alt="Uploaded"
                   className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg border"
                   onError={(e) => {
-                    console.error('Image load error:', uploadedImageUrl);
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}

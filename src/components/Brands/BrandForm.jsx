@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import axiosInstance from "@/utils/api/axiosInstance";
 import { toast } from "sonner";
+import FilePicker from "@/components/common/FilePicker";
 
 const BrandForm = ({
   isOpen,
@@ -30,6 +31,7 @@ const BrandForm = ({
 
   const [imageUploading, setImageUploading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  const [showFilePicker, setShowFilePicker] = useState(false);
 
   useEffect(() => {
     if (displayEditBrand) {
@@ -65,13 +67,11 @@ const BrandForm = ({
           toast.success(t('common.imageUploaded'));
         };
         img.onerror = () => {
-          console.error('Image validation failed:', imageUrl);
           toast.error(t('common.imageValidationError'));
         };
         img.src = imageUrl;
       }
     } catch (error) {
-      console.error('Image upload error:', error);
       toast.error(error?.message || t('common.imageUploadError'));
     } finally {
       setImageUploading(false);
@@ -102,13 +102,6 @@ const BrandForm = ({
     return baseValues;
   }, [displayEditBrand]);
 
-  console.log('BrandForm - editBrand:', editBrand);
-  console.log('BrandForm - editBrandResponse:', editBrandResponse);
-  console.log('BrandForm - displayEditBrand:', displayEditBrand);
-  console.log('BrandForm - initialValues:', initialValues);
-  console.log('BrandForm - initialValues.isActive:', initialValues.isActive);
-  console.log('BrandForm - typeof initialValues.isActive:', typeof initialValues.isActive);
-
   const validationSchema = Yup.object({
     name: Yup.object({
       az: Yup.string().required(t("brands.validation.nameAzRequired")),
@@ -120,17 +113,11 @@ const BrandForm = ({
   });
 
   const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    console.log('BrandForm - handleSubmit called with values:', values);
-    console.log('BrandForm - uploadedImageUrl:', uploadedImageUrl);
-    
     const cleanValues = {
       name: values.name,
       imageUrl: uploadedImageUrl || values.imageUrl || "",
       isActive: Boolean(values.isActive),
     };
-    
-    console.log('BrandForm - cleanValues:', cleanValues);
-    console.log('BrandForm - cleanValues.isActive:', cleanValues.isActive);
     onSubmit(cleanValues, { setSubmitting, resetForm });
   };
 
@@ -148,10 +135,6 @@ const BrandForm = ({
       {({ values, setFieldValue, errors, touched }) => {
         // Ensure values is not undefined
         const safeValues = values || {};
-        
-        console.log('BrandForm - children render - values:', safeValues);
-        console.log('BrandForm - children render - errors:', errors);
-        console.log('BrandForm - children render - touched:', touched);
         
         return (
           <div className="space-y-6">
@@ -177,7 +160,6 @@ const BrandForm = ({
                   alt="Uploaded"
                   className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg border"
                   onError={(e) => {
-                    console.error('Image load error:', uploadedImageUrl);
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
@@ -202,27 +184,29 @@ const BrandForm = ({
 
             {/* Upload Button */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    handleImageUpload(file, setFieldValue);
-                  }
-                }}
-                className="hidden"
-                id="image-upload"
-                disabled={imageUploading}
-              />
-              <label
-                htmlFor="image-upload"
-                className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors w-full sm:w-auto justify-center"
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowFilePicker(true)}
+                className="flex items-center gap-2 w-full sm:w-auto justify-center"
               >
                 <Upload size={16} />
-                {imageUploading ? t('common.uploading') : t('common.uploadImage')}
-              </label>
+                {t('common.uploadImage')}
+              </Button>
             </div>
+
+            {/* FilePicker Modal */}
+            <FilePicker
+              isOpen={showFilePicker}
+              onClose={() => setShowFilePicker(false)}
+              onSelect={(url) => {
+                setUploadedImageUrl(url);
+                setFieldValue('imageUrl', url);
+                setShowFilePicker(false);
+              }}
+              acceptTypes={["image"]}
+              title={t('brands.selectBrandImage')}
+            />
 
             {/* Hidden input for form value */}
             <input

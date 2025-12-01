@@ -53,7 +53,6 @@ export const Login = () => {
         toast.error(t('login.tokenError'));
       }
     } catch (error) {
-      console.error("Login error:", error);
       if (typeof error === 'string') {
         if (error.includes("username") || error.includes("email") || error.includes("Email")) {
           setFieldError("username", error);

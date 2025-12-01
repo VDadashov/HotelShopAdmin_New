@@ -120,11 +120,7 @@ export default function Product() {
   };
 
   const handleFormSubmit = (formData, { setSubmitting, resetForm }) => {
-    console.log('Product - handleFormSubmit called with formData:', formData);
-    console.log('Product - editProduct:', editProduct);
-    
     if (editProduct) {
-      console.log('Product - Updating product...');
       updateProduct.mutate(formData, {
         onSuccess: () => {
           toast.success(t('products.productUpdated'));
@@ -139,7 +135,6 @@ export default function Product() {
         onSettled: () => setSubmitting(false),
       });
     } else {
-      console.log('Product - Creating product...');
       createProduct.mutate(formData, {
         onSuccess: () => {
           toast.success(t('products.productAdded'));

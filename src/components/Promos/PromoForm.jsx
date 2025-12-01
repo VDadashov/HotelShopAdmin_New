@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Upload, X, Calendar, Search, Package, Check } from "lucide-react";
 import axiosInstance from "@/utils/api/axiosInstance";
 import { toast } from "sonner";
+import FilePicker from "@/components/common/FilePicker";
 import * as Yup from "yup";
 import { useGet } from "@/utils/hooks";
 import { ENDPOINTS } from "@/utils/constants/Endpoints";
@@ -25,6 +26,7 @@ const PromoForm = ({
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [productSearchTerm, setProductSearchTerm] = useState("");
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
+  const [showFilePicker, setShowFilePicker] = useState(false);
 
   // Get products for dropdown
   const { data: productsResponse } = useGet("products", `${ENDPOINTS.products}?allLanguages=true`);
@@ -116,7 +118,6 @@ const PromoForm = ({
           toast.success(t("common.imageUploaded"));
         };
         img.onerror = () => {
-          console.error('Image validation failed:', imageUrl);
           toast.error(t("common.imageUploadError"));
         };
         img.src = imageUrl;
@@ -124,7 +125,6 @@ const PromoForm = ({
         throw new Error('No URL returned from server');
       }
     } catch (error) {
-      console.error('Image upload error:', error);
       toast.error(t("common.imageUploadError"));
     } finally {
       setImageUploading(false);
@@ -187,7 +187,6 @@ const PromoForm = ({
       await onSubmit(submitData);
       // Don't call onClose here - let the parent handle it
     } catch (error) {
-      console.error('Submit error:', error);
       toast.error(t("common.error"));
     } finally {
       setIsSubmitting(false);
@@ -445,7 +444,6 @@ const PromoForm = ({
                   alt="Uploaded"
                   className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg border"
                   onError={(e) => {
-                    console.error('Image load error:', uploadedImageUrl);
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
@@ -470,27 +468,29 @@ const PromoForm = ({
 
             {/* Upload Button */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    handleImageUpload(file, setFieldValue);
-                  }
-                }}
-                className="hidden"
-                id="image-upload"
-                disabled={imageUploading}
-              />
-              <label
-                htmlFor="image-upload"
-                className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors w-full sm:w-auto justify-center"
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowFilePicker(true)}
+                className="flex items-center gap-2 w-full sm:w-auto justify-center"
               >
                 <Upload size={16} />
-                {imageUploading ? t('common.uploading') : t('common.uploadImage')}
-              </label>
+                {t('common.uploadImage')}
+              </Button>
             </div>
+
+            {/* FilePicker Modal */}
+            <FilePicker
+              isOpen={showFilePicker}
+              onClose={() => setShowFilePicker(false)}
+              onSelect={(url) => {
+                setUploadedImageUrl(url);
+                setFieldValue('backgroundImg', url);
+                setShowFilePicker(false);
+              }}
+              acceptTypes={["image"]}
+              title={t('promos.selectBackgroundImage')}
+            />
 
             {/* Hidden input for form value */}
             <input

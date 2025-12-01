@@ -28,13 +28,9 @@ export const getOneData = async (endpoint, slug) => {
 
 export const postData = async (endpoint, newData) => {
   try {
-    console.log('postData - endpoint:', endpoint);
-    console.log('postData - newData:', newData);
     const response = await axiosInstance.post(endpoint, newData);
-    console.log('postData - response:', response.data);
     return response.data;
   } catch (error) {
-    console.error('postData - error:', error);
     throw error.response.data.message;
   }
 };

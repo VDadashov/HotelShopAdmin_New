@@ -54,11 +54,10 @@ export default function Category() {
       params.append('isActive', filters.isActive);
     }
     
-    params.append('limit', pagination.limit);
     params.append('page', pagination.currentPage);
+    params.append('pageSize', pagination.limit);
     
     const url = `${ENDPOINTS.categories}?${params.toString()}`;
-    console.log('Generated API URL:', url);
     return url;
   }, [debouncedSearchValue, filters, pagination]);
 

@@ -8,9 +8,6 @@ export const useGet = (key, endpoint, language = null) => {
       return getData(endpoint);
     },
     enabled: !!endpoint, // endpoint null deyilsə çağır
-    onError: (error) => {
-      console.error(`Error fetching data: ${error.message || error}`);
-    },
   });
 };
 
@@ -18,8 +15,5 @@ export const useGetOne = (key, endpoint, slug) => {
   return useQuery({
     queryKey: [key, slug], 
     queryFn: () => getOneData(endpoint, slug),
-    onError: (error) => {
-      console.error(`Error fetching data: ${error.message || error}`);
-    },
   });
 };

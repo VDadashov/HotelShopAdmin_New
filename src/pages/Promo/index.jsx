@@ -61,31 +61,20 @@ const PromoPage = () => {
   const { data: promosResponse, isLoading, refetch } = useGet("promos", apiUrl, i18n.language);
   const { data: productsResponse } = useGet("products", `${ENDPOINTS.products}?allLanguages=true`);
   
-  // Debug: Log the API response
-  console.log("Promos API Response:", promosResponse);
-  console.log("Promos Response Type:", typeof promosResponse);
-  console.log("Promos Response Keys:", promosResponse ? Object.keys(promosResponse) : "No response");
-  console.log("Promos Data:", promosResponse?.data);
-  
   // Transform data to match table expectations
   const transformedData = useMemo(() => {
     // Check if promosResponse is the array directly or wrapped in data property
     const rawData = Array.isArray(promosResponse) ? promosResponse : promosResponse?.data;
     
     if (!rawData || !Array.isArray(rawData)) {
-      console.log("No valid data found:", { promosResponse, rawData });
       return [];
     }
-    
-    console.log("Raw data for transformation:", rawData);
     
     return rawData.map(promo => ({
       ...promo,
       productId: promo.product?.id || promo.productId
     }));
   }, [promosResponse]);
-  
-  console.log("Transformed Data:", transformedData);
   
   const addPromo = usePost("promos", ENDPOINTS.promos);
   const updatePromo = useUpdate("promos", ENDPOINTS.promos, selectedItem?.id);
@@ -128,7 +117,6 @@ const PromoPage = () => {
       setIsEditMode(false);
       refetch();
     } catch (error) {
-      console.error("Submit error:", error);
       toast.error(t("errors.generalError"));
     }
   };
@@ -140,7 +128,6 @@ const PromoPage = () => {
       refetch();
       setIsDeleteModalOpen(false);
     } catch (error) {
-      console.error("Delete error:", error);
       toast.error(t("errors.generalError"));
     }
   };

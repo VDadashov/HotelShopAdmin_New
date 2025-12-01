@@ -13,6 +13,7 @@ import Section from "@/pages/Section"
 import Brand from "@/pages/Brand"
 import Testimonial from "@/pages/Testimonial"
 import Promo from "@/pages/Promo"
+import Upload from "@/pages/Upload"
 
 // import Contact from "../pages/Contact";
 
@@ -72,6 +73,10 @@ const routes = createBrowserRouter([
       {
         path: "/promo",
         element: <Promo />,
+      },
+      {
+        path: "/upload",
+        element: <Upload />,
       },
       // {
       //     path: "/settings",
